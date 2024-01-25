@@ -2,6 +2,9 @@
 #include "Vertex.h"
 #include "Input.h"
 #include "PathHelpers.h"
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_dx11.h"
+#include "ImGui/imgui_impl_win32.h"
 
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
@@ -47,6 +50,12 @@ Game::~Game()
 
 	// Call Release() on any Direct3D objects made within this class
 	// - Note: this is unnecessary for D3D objects stored in ComPtrs
+
+	// ImGui clean up
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
 }
 
 // --------------------------------------------------------
@@ -55,6 +64,8 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
+
+
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
@@ -82,6 +93,16 @@ void Game::Init()
 		context->VSSetShader(vertexShader.Get(), 0, 0);
 		context->PSSetShader(pixelShader.Get(), 0, 0);
 	}
+
+	// Initialize ImGui itself & platform/renderer backends
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui_ImplWin32_Init(hWnd);
+	ImGui_ImplDX11_Init(device.Get(), context.Get());
+	// Pick a style (uncomment one of these 3)
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+	//ImGui::StyleColorsClassic();
 }
 
 // --------------------------------------------------------
@@ -265,9 +286,12 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	UpdateImGui(deltaTime);
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
+
+	BuildUi();
 }
 
 // --------------------------------------------------------
@@ -280,7 +304,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	// - At the beginning of Game::Draw() before drawing *anything*
 	{
 		// Clear the back buffer (erases what's on the screen)
-		const float bgColor[4] = { 0.4f, 0.6f, 0.75f, 1.0f }; // Cornflower Blue
 		context->ClearRenderTargetView(backBufferRTV.Get(), bgColor);
 
 		// Clear the depth buffer (resets per-pixel occlusion information)
@@ -321,6 +344,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		//  - Puts the results of what we've drawn onto the window
 		//  - Without this, the user never sees anything
 		bool vsyncNecessary = vsync || !deviceSupportsTearing || isFullscreen;
+
+		ImGui::Render(); // Turns this frame’s UI into renderable triangles
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // Draws it to the screen
+
 		swapChain->Present(
 			vsyncNecessary ? 1 : 0,
 			vsyncNecessary ? 0 : DXGI_PRESENT_ALLOW_TEARING);
@@ -328,4 +355,65 @@ void Game::Draw(float deltaTime, float totalTime)
 		// Must re-bind buffers after presenting, as they become unbound
 		context->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
 	}
+}
+
+void Game::UpdateImGui(float deltaTime)
+{
+	// Feed fresh data to ImGui
+	ImGuiIO& io = ImGui::GetIO();
+	io.DeltaTime = deltaTime;
+	io.DisplaySize.x = (float)this->windowWidth;
+	io.DisplaySize.y = (float)this->windowHeight;
+	// Reset the frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	// Determine new input capture
+	Input& input = Input::GetInstance();
+	input.SetKeyboardCapture(io.WantCaptureKeyboard);
+	input.SetMouseCapture(io.WantCaptureMouse);
+	// Show the demo window
+	if(showWindow)
+	ImGui::ShowDemoWindow();
+}
+
+void Game::BuildUi()
+{
+	ImGui::Begin("Information Window");
+	ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
+	ImGui::Text("Window Resolution: %dx%d", windowWidth, windowHeight);
+	ImGui::ColorEdit4("Background Color", bgColor);
+	ImGui::ColorEdit4("Vertex 1 Color", bgColor);
+	ImGui::ColorEdit4("Vertex 2 Color", bgColor);
+	ImGui::ColorEdit4("Vertex 3 Color", bgColor);
+	if (ImGui::Button("Show Demo Window"))
+	{
+		showWindow = !showWindow;
+	}
+	ImGui::InputText("New Window Name", nextWindowTitle, IM_ARRAYSIZE(nextWindowTitle));
+	if (ImGui::Button("Add A New Window (Max 10)"))
+	{
+		if (windowsToCreate < 10)
+		{
+			strcpy_s(windowTitles[windowsToCreate], nextWindowTitle);
+			windowsToCreate++; 
+			nextWindowTitle[0] = '\0';
+		}
+	}
+	for (int i = 0; i < windowsToCreate; i++)
+	{
+		ImGui::SetNextWindowPos(ImVec2(100, 100 + i*20), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_Always);
+		if (strlen(windowTitles[i]) > 0)
+		{
+			ImGui::Begin(windowTitles[i]);
+		}
+		else
+		{
+			ImGui::Begin(("New Window " + std::to_string(i+1)).c_str());
+		}
+		ImGui::Text("I'm a window!");
+		ImGui::End();
+	}
+	ImGui::End();
 }
