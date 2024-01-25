@@ -383,9 +383,6 @@ void Game::BuildUi()
 	ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
 	ImGui::Text("Window Resolution: %dx%d", windowWidth, windowHeight);
 	ImGui::ColorEdit4("Background Color", bgColor);
-	ImGui::ColorEdit4("Vertex 1 Color", bgColor);
-	ImGui::ColorEdit4("Vertex 2 Color", bgColor);
-	ImGui::ColorEdit4("Vertex 3 Color", bgColor);
 	if (ImGui::Button("Show Demo Window"))
 	{
 		showWindow = !showWindow;
@@ -402,8 +399,8 @@ void Game::BuildUi()
 	}
 	for (int i = 0; i < windowsToCreate; i++)
 	{
-		ImGui::SetNextWindowPos(ImVec2(100, 100 + i*20), ImGuiCond_Always);
-		ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_Always);
+		ImGui::SetNextWindowPos(ImVec2(100, 100 + i*20), ImGuiCond_Appearing);
+		ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_Appearing);
 		if (strlen(windowTitles[i]) > 0)
 		{
 			ImGui::Begin(windowTitles[i]);
