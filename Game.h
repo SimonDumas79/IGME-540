@@ -1,8 +1,10 @@
 #pragma once
 
 #include "DXCore.h"
+#include "Mesh.h"
 #include <DirectXMath.h>
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
+#include <memory>
 
 class Game 
 	: public DXCore
@@ -46,5 +48,7 @@ private:
 	int windowsToCreate = 0;
 	char nextWindowTitle[256];
 	char windowTitles[10][256];
+	std::shared_ptr<Mesh>* meshes;
+	unsigned int meshCount;
 };
 
