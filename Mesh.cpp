@@ -137,6 +137,8 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
+	vertexBuffer.Reset();
+	indexBuffer.Reset();
 }
 
 Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::GetVertexBuffer()
@@ -156,6 +158,7 @@ int Mesh::GetIndexCount()
 
 void Mesh::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext>	context)
 {
+
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
@@ -170,5 +173,5 @@ void Mesh::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext>	context)
 		0,     // Offset to the first index we want to use
 		0);    // Offset to add to each index when looking up vertices
 
-	
+	context.Reset();
 }

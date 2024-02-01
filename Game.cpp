@@ -57,7 +57,9 @@ Game::~Game()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
-
+	
+	delete[] meshes;
+	meshes = nullptr;
 }
 
 // --------------------------------------------------------
@@ -184,6 +186,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
+	
 	meshCount = 3;
 	meshes = new std::shared_ptr<Mesh>[meshCount];
 
