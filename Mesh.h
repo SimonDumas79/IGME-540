@@ -20,7 +20,7 @@ class Mesh
 	public:
 
 		Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, int vertexCount, unsigned int* indices, int indexCount);
-		Mesh();
+		
 
 		~Mesh();
 

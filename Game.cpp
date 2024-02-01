@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "Input.h"
+#include "BufferStructs.h"
 #include "PathHelpers.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_dx11.h"
@@ -97,6 +98,24 @@ void Game::Init()
 		context->VSSetShader(vertexShader.Get(), 0, 0);
 		context->PSSetShader(pixelShader.Get(), 0, 0);
 	}
+
+	unsigned int size = sizeof(VertexShaderData);
+	size = (size + 15) / 16 * 16;
+
+	D3D11_BUFFER_DESC cbDesc;
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cbDesc.ByteWidth = size;
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.MiscFlags = 0;
+	cbDesc.StructureByteStride = 0;
+
+	//create the buffer
+	device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
+
+	context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
+
+
 
 	// Initialize ImGui itself & platform/renderer backends
 	IMGUI_CHECKVERSION();
@@ -312,6 +331,18 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
+
+	
+	VertexShaderData vsData = {};
+	vsData.offset = XMFLOAT3(0.25f, 0, 0);
+	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
+
+	//set fresh data in constant buffer for next draw
+	D3D11_MAPPED_SUBRESOURCE map;
+	context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+	
+	memcpy(map.pData, &vsData, sizeof(VertexShaderData));
+	context->Unmap(constantBuffer.Get(), 0);
 	//insert mesh drawing here
 	for (int i = 0; i < meshCount; i++)
 	{
