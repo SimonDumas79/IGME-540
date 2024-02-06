@@ -398,9 +398,6 @@ void Game::BuildUi()
 		ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
 		ImGui::Text("Window Resolution: %dx%d", windowWidth, windowHeight);
 		ImGui::ColorEdit4("Background Color", bgColor);
-		ImGui::ColorEdit4("Vertex 1 Color", bgColor);
-		ImGui::ColorEdit4("Vertex 2 Color", bgColor);
-		ImGui::ColorEdit4("Vertex 3 Color", bgColor);
 		if (ImGui::Button("Show Demo Window"))
 		{
 			showWindow = !showWindow;

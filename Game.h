@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
 #include <memory>
+#include "BufferStructs.h"
 
 class Game 
 	: public DXCore
@@ -50,6 +51,8 @@ private:
 	char windowTitles[10][256];
 	std::shared_ptr<Mesh>* meshes;
 	unsigned int meshCount;
+
+	VertexShaderData vsData;
 
 	//need a constant bufer to hold the external data from c++ used by our shaders
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
