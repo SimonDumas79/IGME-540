@@ -36,7 +36,7 @@ struct VertexToPixel
 cbuffer DataFromCPU : register(b0)
 {
 	float4 colorTint;
-	matrix world;
+	float3 offset;
 }
 
 // --------------------------------------------------------
@@ -59,8 +59,7 @@ VertexToPixel main( VertexShaderInput input )
 	// - Each of these components is then automatically divided by the W component, 
 	//   which we're leaving at 1.0 for now (this is more useful when dealing with 
 	//   a perspective projection matrix, which we'll get to in the future).
-	output.screenPosition = mul(world)//float4(input.localPosition + offset, 1.0f);
-	
+	output.screenPosition = float4(input.localPosition + offset, 1.0f);
 	output.color = input.color * colorTint;
 	// Pass the color through 
 	// - The values will be interpolated per-pixel by the rasterizer

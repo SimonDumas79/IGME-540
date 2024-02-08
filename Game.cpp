@@ -33,11 +33,21 @@ Game::Game(HINSTANCE hInstance)
 {
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
-	meshCount = 0;
-	meshes;
+	
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
+
+	
 #endif
+	//Giving all variables initial values
+	meshCount = 0;
+	meshes = new std::shared_ptr<Mesh>[meshCount];
+	vsData = {};
+	std::memset(nextWindowTitle, '\0', sizeof(nextWindowTitle));
+	std::memset(windowTitles[0], '\0', sizeof(windowTitles[0]));
+	for (int i = 0; i < 10; ++i) {
+		std::memset(windowTitles[i], '\0', sizeof(windowTitles[i]));
+	}
 }
 
 // --------------------------------------------------------
@@ -69,8 +79,6 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
-
-
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
@@ -332,8 +340,6 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 
 
-	
-	VertexShaderData vsData = {};
 	vsData.offset = XMFLOAT3(0.25f, 0, 0);
 	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
 
@@ -344,7 +350,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	memcpy(map.pData, &vsData, sizeof(VertexShaderData));
 	context->Unmap(constantBuffer.Get(), 0);
 	//insert mesh drawing here
-	for (int i = 0; i < meshCount; i++)
+	for (unsigned int i = 0; i < meshCount; i++)
 	{
 		meshes[i]->Draw(context);
 	}
@@ -414,7 +420,7 @@ void Game::BuildUi()
 		}
 		for (int i = 0; i < windowsToCreate; i++)
 		{
-			ImGui::SetNextWindowPos(ImVec2(100, 100 + i*20), ImGuiCond_Always);
+			ImGui::SetNextWindowPos(ImVec2(100.0f, 100.0f + static_cast<float>(i) * 20.0f), ImGuiCond_Always);
 			ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_Always);
 			if (strlen(windowTitles[i]) > 0)
 			{
@@ -430,7 +436,7 @@ void Game::BuildUi()
 	}
 	if (ImGui::CollapsingHeader("Meshes"))
 	{
-		for (int i = 0; i < meshCount; i++)
+		for (unsigned int i = 0; i < meshCount; i++)
 		{
 			ImGui::Text("Mesh %d: %d triangle(s)", i, meshes[i]->GetIndexCount()/3);
 		}
