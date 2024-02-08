@@ -1,7 +1,6 @@
 #include "Game.h"
 #include "Vertex.h"
 #include "Input.h"
-#include "BufferStructs.h"
 #include "PathHelpers.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_dx11.h"
@@ -126,6 +125,10 @@ void Game::Init()
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
 	//ImGui::StyleColorsClassic();
+
+	vsData.colorTint = XMFLOAT4(1, 0, 0, 0);
+	vsData.offset = XMFLOAT3(0,.5f,0);
+
 }
 
 // --------------------------------------------------------
@@ -313,6 +316,30 @@ void Game::Update(float deltaTime, float totalTime)
 		Quit();
 
 	BuildUi();
+	
+		//When using DirectXMath, need to:
+	//1: Load existing data from storage to math types
+	XMVECTOR offsetVec = XMLoadFloat3(&vsData.offset);
+	XMVECTOR dtVec = XMVectorSet(deltaTime, 0, 0, 0);
+
+	//2: Perform any and all math on the Math types
+	offsetVec = XMVectorAdd(offsetVec, dtVec);
+
+	//3: Store the math type data back to a storage type
+	XMStoreFloat3(&vsData.offset, offsetVec);
+	
+	/*
+	XMMATRIX world = XMLoadFloat4x4(&vsData.world);
+	XMMATRIX rot = XMMatrixRotationZ(deltaTime);
+	XMMATRIX sc = XMMatrixScaling(sin(totalTime), sin(totalTime), sin(totalTime));
+
+	//world = XMMatrixMultiply(world, rot);
+	// 
+	//this is less performant than the xmmatrixmultiply
+	world = world * sc * rot;
+	
+	XMStoreFloat4x4(&vsData.world, world);
+	*/
 }
 
 // --------------------------------------------------------
@@ -333,7 +360,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 
 	
-	VertexShaderData vsData = {};
+	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
 	vsData.offset = XMFLOAT3(0.25f, 0, 0);
 	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
 
