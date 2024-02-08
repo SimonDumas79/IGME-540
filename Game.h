@@ -44,11 +44,15 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 
+	//imgui section
 	float bgColor[4] = { 0.4f, 0.6f, 0.75f, 1.0f }; // Cornflower Blue
 	bool showWindow = true;
 	int windowsToCreate = 0;
 	char nextWindowTitle[256];
 	char windowTitles[10][256];
+	float offsetUI[3];
+	float colorTintUI[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+
 	std::shared_ptr<Mesh>* meshes;
 	unsigned int meshCount;
 

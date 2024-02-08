@@ -5,7 +5,7 @@ Transform::Transform() :
 	translation(0, 0, 0),
 	pitchYawRoll(0, 0, 0),
 	scale(1, 1, 1),
-	matrixDirty(false);
+	matrixDirty(false)
 {
 	XMStoreFloat4x4(&worldMatrix, XMMatrixIdentity());
 }

@@ -6,6 +6,7 @@
 #include "ImGui/imgui_impl_dx11.h"
 #include "ImGui/imgui_impl_win32.h"
 #include "Transform.h"
+#include <iostream>
 
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
@@ -71,6 +72,7 @@ Game::~Game()
 	
 	delete[] meshes;
 	meshes = nullptr;
+
 }
 
 // --------------------------------------------------------
@@ -217,7 +219,8 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	
+	//clean up empty meshes before reassignment
+	delete[] meshes;
 	meshCount = 3;
 	meshes = new std::shared_ptr<Mesh>[meshCount];
 
@@ -326,6 +329,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	BuildUi();
 	
+	/*
 		//When using DirectXMath, need to:
 	//1: Load existing data from storage to math types
 	XMVECTOR offsetVec = XMLoadFloat3(&vsData.offset);
@@ -336,7 +340,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	//3: Store the math type data back to a storage type
 	XMStoreFloat3(&vsData.offset, offsetVec);
-	
+	*/
 	/*
 	XMMATRIX world = XMLoadFloat4x4(&vsData.world);
 	XMMATRIX rot = XMMatrixRotationZ(deltaTime);
@@ -370,9 +374,8 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	
 	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
-	vsData.offset = XMFLOAT3(0.25f, 0, 0);
-	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
-
+	vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
+	vsData.colorTint = { colorTintUI[3], colorTintUI[0], colorTintUI[1], colorTintUI[2] };
 	//set fresh data in constant buffer for next draw
 	D3D11_MAPPED_SUBRESOURCE map;
 	context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
@@ -470,6 +473,12 @@ void Game::BuildUi()
 		{
 			ImGui::Text("Mesh %d: %d triangle(s)", i, meshes[i]->GetIndexCount()/3);
 		}
+	}
+	if (ImGui::CollapsingHeader("Edit Values"))
+	{
+		ImGui::DragFloat3("Offset", offsetUI, 0.1f);
+		ImGui::ColorEdit4("Color Tint", colorTintUI);
+		std::cout << colorTintUI[0] << " ," << colorTintUI[1] << " ," << colorTintUI[2] << " ," << colorTintUI[3] <<  " -------- " << vsData.colorTint.x << " ," << vsData.colorTint.y << " ," << vsData.colorTint.z << " ," << vsData.colorTint.w << "\n";
 	}
 	
 	ImGui::End();
