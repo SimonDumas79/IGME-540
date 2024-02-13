@@ -25,6 +25,20 @@ DirectX::XMFLOAT3 Transform::GetScale()
 	return scale;
 }
 
+DirectX::XMFLOAT3 Transform::GetForwardVector()
+{
+	//local forward vector
+	XMVECTOR fwd = XMVectorSet(0, 0, 1, 0);
+
+	//quaternion for current rotation in world space
+	XMVECTOR rotQuat = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll));
+
+	//rotate default forward by the actual rotation
+	XMFLOAT3 forwardVector;
+	XMStoreFloat3(&forwardVector, XMVector3Rotate(fwd, rotQuat));
+	return forwardVector;
+}
+
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 {
 	UpdateWorldMatrix();

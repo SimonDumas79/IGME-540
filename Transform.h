@@ -28,6 +28,7 @@ public:
 	DirectX::XMFLOAT3 GetPosition();
 	DirectX::XMFLOAT3 GetPitchYawRoll();
 	DirectX::XMFLOAT3 GetScale();
+	DirectX::XMFLOAT3 GetForwardVector();
 	DirectX::XMFLOAT4X4 GetWorldMatrix();
 
 	//setters
