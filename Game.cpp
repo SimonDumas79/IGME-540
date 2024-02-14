@@ -138,7 +138,11 @@ void Game::Init()
 	//ImGui::StyleColorsClassic();
 
 	vsData.colorTint = XMFLOAT4(1, 0, 0, 0);
-	vsData.offset = XMFLOAT3(0,.5f,0);
+	vsData.worldMatrix = XMMATRIX(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f);
 
 }
 
@@ -374,7 +378,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	
 	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
-	vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
+	//vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
 	vsData.colorTint = { colorTintUI[3], colorTintUI[0], colorTintUI[1], colorTintUI[2] };
 	//set fresh data in constant buffer for next draw
 	D3D11_MAPPED_SUBRESOURCE map;

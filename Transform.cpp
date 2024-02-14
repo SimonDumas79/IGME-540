@@ -8,6 +8,7 @@ Transform::Transform() :
 	matrixDirty(false)
 {
 	XMStoreFloat4x4(&worldMatrix, XMMatrixIdentity());
+	XMStoreFloat4x4(&worldInverseTranspose, XMMatrixIdentity());
 }
 
 DirectX::XMFLOAT3 Transform::GetPosition()
@@ -46,11 +47,22 @@ DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 	return worldMatrix;
 }
 
+DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
+{
+	return worldInverseTranspose;
+}
+
 void Transform::SetPosition(float x, float y, float z)
 {
 	translation.x = x;
 	translation.y = y;
 	translation.z = z;
+	matrixDirty = true;
+}
+
+void Transform::SetPosition(DirectX::XMFLOAT3 position)
+{
+	translation = position;
 	matrixDirty = true;
 }
 
@@ -62,11 +74,23 @@ void Transform::SetRotation(float pitch, float yaw, float roll)
 	matrixDirty = true;
 }
 
+void Transform::SetRotation(DirectX::XMFLOAT3 pitchYawRoll)
+{
+	this->pitchYawRoll = pitchYawRoll;
+	matrixDirty = true;
+}
+
 void Transform::SetScale(float x, float y, float z)
 {
 	scale.x = x;
 	scale.y = y;
 	scale.z = z;
+	matrixDirty = true;
+}
+
+void Transform::SetScale(DirectX::XMFLOAT3 scale)
+{
+	this->scale = scale;
 	matrixDirty = true;
 }
 
@@ -78,7 +102,17 @@ void Transform::MoveWorld(float x, float y, float z)
 	matrixDirty = true;
 }
 
+void Transform::MoveWorld(DirectX::XMFLOAT3 offset)
+{
+}
+
 void Transform::MoveLocal(float x, float y, float z)
+{
+
+	matrixDirty = true;
+}
+
+void Transform::MoveLocal(DirectX::XMFLOAT3 offset)
 {
 
 	matrixDirty = true;
@@ -92,11 +126,27 @@ void Transform::Rotate(float p, float y, float r)
 	matrixDirty = true;
 }
 
+void Transform::Rotate(DirectX::XMFLOAT3 rotation)
+{
+	pitchYawRoll.x += rotation.x;
+	pitchYawRoll.y += rotation.y;
+	pitchYawRoll.z += rotation.z;
+	matrixDirty = true;
+}
+
 void Transform::Scale(float x, float y, float z)
 {
 	scale.x *= x;
 	scale.y *= y;
 	scale.z *= z;
+	matrixDirty = true;
+}
+
+void Transform::Scale(DirectX::XMFLOAT3 scale)
+{
+	scale.x *= scale.x;
+	scale.y *= scale.y;
+	scale.z *= scale.z;
 	matrixDirty = true;
 }
 
@@ -115,5 +165,7 @@ void Transform::UpdateWorldMatrix()
 
 	XMMATRIX worldMat = (s * r) * t;
 
-	XMStoreFloat4x4(&worldMatrix, worldMat);
+	XMStoreFloat4x4(&worldMatrix, worldMat); 
+	XMStoreFloat4x4(&worldInverseTranspose,
+		XMMatrixInverse(0, XMMatrixTranspose(worldMat)));
 }
