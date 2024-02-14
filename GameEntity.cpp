@@ -9,3 +9,17 @@ GameEntity::~GameEntity()
 {
 	delete transform;
 }
+
+std::shared_ptr<Mesh> GameEntity::GetMesh()
+{
+	return std::shared_ptr<Mesh>();
+}
+
+Transform* GameEntity::GetTransform()
+{
+	return nullptr;
+}
+
+void GameEntity::Draw()
+{
+}
