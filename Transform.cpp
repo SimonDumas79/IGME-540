@@ -40,6 +40,16 @@ DirectX::XMFLOAT3 Transform::GetForwardVector()
 	return forwardVector;
 }
 
+DirectX::XMFLOAT3 Transform::GetUpVector()
+{
+	return DirectX::XMFLOAT3();
+}
+
+DirectX::XMFLOAT3 Transform::GetRightVector()
+{
+	return DirectX::XMFLOAT3();
+}
+
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 {
 	UpdateWorldMatrix();
@@ -104,10 +114,19 @@ void Transform::MoveWorld(float x, float y, float z)
 
 void Transform::MoveWorld(DirectX::XMFLOAT3 offset)
 {
+
 }
 
 void Transform::MoveLocal(float x, float y, float z)
 {
+	XMVECTOR movement = XMVectorSet(x, y, z, 0);
+	XMVECTOR rotQuat = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll));
+
+	//rotate the movement to make it relative
+	XMVECTOR dir = XMVector3Rotate(movement, rotQuat);
+
+	//add the direction to our position
+	XMStoreFloat3(&translation, XMLoadFloat3(&translation) + dir);
 
 	matrixDirty = true;
 }

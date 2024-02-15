@@ -12,15 +12,21 @@ public:
 	~Camera();
 
 	void Update(float dt);
-	void UpdateViewMatrix();
+	void UpdateViewMatrix(float aspectRatio);
 	void UpdateProjectionMatrix();
 
+	DirectX::XMFLOAT4X4 GetView();
+	DirectX::XMFLOAT4X4 GetProjection();
+	Transform* GetTransform();
 
 private:
 	DirectX::XMFLOAT4X4 viewMatrix;
 	DirectX::XMFLOAT4X4 projMatrix;
 
-
 	Transform transform;
+
+	float movementSpeed;
+	float mouseLookSpeed;
+	float aspectRatio;
 };
 

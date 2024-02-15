@@ -138,12 +138,17 @@ void Game::Init()
 	//ImGui::StyleColorsClassic();
 
 	vsData.colorTint = XMFLOAT4(1, 0, 0, 0);
-	vsData.worldMatrix = XMMATRIX(
+	vsData.worldMatrix = XMFLOAT4X4(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f);
 
+	camera = std::make_shared<Camera>(
+		0.0f, 0.0f, -0.5f,
+		5.0f,
+		0.002f,
+		(float)windowWidth / windowHeight);
 }
 
 // --------------------------------------------------------
@@ -332,7 +337,12 @@ void Game::Update(float deltaTime, float totalTime)
 		Quit();
 
 	BuildUi();
-	
+	//update shader camera values
+
+	camera->UpdateViewMatrix(float(windowWidth) / windowHeight);
+	camera->UpdateProjectionMatrix();
+	vsData.projectionMatrix = camera->GetProjection();
+	vsData.viewMatrix = camera->GetView();
 	/*
 		//When using DirectXMath, need to:
 	//1: Load existing data from storage to math types

@@ -37,6 +37,8 @@ cbuffer DataFromCPU : register(b0)
 {
 	float4 colorTint;
 	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
 }
 
 // --------------------------------------------------------
@@ -60,7 +62,8 @@ VertexToPixel main( VertexShaderInput input )
 	//   which we're leaving at 1.0 for now (this is more useful when dealing with 
 	//   a perspective projection matrix, which we'll get to in the future).
 	//output.screenPosition = float4(input.localPosition + offset, 1.0f);
-	output.screenPosition = mul(worldMatrix, float4(input.localPosition, 1.0f));
+	matrix wvp = mul(projectionMatrix, mul(viewMatrix, worldMatrix));
+	output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
 	output.color = input.color * colorTint;
 	// Pass the color through 
 	// - The values will be interpolated per-pixel by the rasterizer

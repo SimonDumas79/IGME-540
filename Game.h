@@ -6,6 +6,7 @@
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
 #include <memory>
 #include "BufferStructs.h"
+#include "Camera.h"
 
 class Game 
 	: public DXCore
@@ -57,6 +58,8 @@ private:
 	unsigned int meshCount;
 
 	VertexShaderData vsData;
+
+	std::shared_ptr<Camera> camera;
 
 	//need a constant bufer to hold the external data from c++ used by our shaders
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;

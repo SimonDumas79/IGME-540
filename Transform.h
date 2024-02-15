@@ -30,6 +30,8 @@ public:
 	DirectX::XMFLOAT3 GetPitchYawRoll();
 	DirectX::XMFLOAT3 GetScale();
 	DirectX::XMFLOAT3 GetForwardVector();
+	DirectX::XMFLOAT3 GetUpVector();
+	DirectX::XMFLOAT3 GetRightVector();
 	DirectX::XMFLOAT4X4 GetWorldMatrix();
 	DirectX::XMFLOAT4X4 GetWorldInverseTransposeMatrix();
 
