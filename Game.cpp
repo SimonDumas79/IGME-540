@@ -142,10 +142,10 @@ void Game::Init()
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f);
+		0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera = std::make_shared<Camera>(
-		0.0f, 0.0f, -0.5f,
+		0.0f, 0.0f, -10.5f,
 		5.0f,
 		0.002f,
 		(float)windowWidth / windowHeight);
@@ -339,10 +339,9 @@ void Game::Update(float deltaTime, float totalTime)
 	BuildUi();
 	//update shader camera values
 
-	camera->UpdateViewMatrix(float(windowWidth) / windowHeight);
-	camera->UpdateProjectionMatrix();
-	vsData.projectionMatrix = camera->GetProjection();
-	vsData.viewMatrix = camera->GetView();
+	camera->UpdateViewMatrix();
+	camera->UpdateProjectionMatrix(float(windowWidth) / windowHeight);
+	camera->Update(deltaTime);
 	/*
 		//When using DirectXMath, need to:
 	//1: Load existing data from storage to math types
@@ -389,6 +388,16 @@ void Game::Draw(float deltaTime, float totalTime)
 	
 	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
 	//vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
+
+	vsData.projectionMatrix = camera->GetProjection();
+	vsData.worldMatrix = XMFLOAT4X4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
+	std::cout << camera->GetTransform()->GetWorldMatrix()._11 << ", " << camera->GetTransform()->GetWorldMatrix()._22 << ", " << camera->GetTransform()->GetWorldMatrix()._33 << ", " << camera->GetTransform()->GetWorldMatrix()._44 << "--";
+	std::cout<<	camera->GetTransform()->GetWorldMatrix()._41 << ", " << camera->GetTransform()->GetWorldMatrix()._42 << ", " << camera->GetTransform()->GetWorldMatrix()._43 << ", " << camera->GetTransform()->GetWorldMatrix()._44<< std::endl;
+	vsData.viewMatrix = camera->GetView();
 	vsData.colorTint = { colorTintUI[3], colorTintUI[0], colorTintUI[1], colorTintUI[2] };
 	//set fresh data in constant buffer for next draw
 	D3D11_MAPPED_SUBRESOURCE map;

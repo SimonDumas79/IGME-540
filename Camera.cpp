@@ -38,15 +38,15 @@ void Camera::Update(float dt)
 
 		XMFLOAT3 rot = transform.GetPitchYawRoll();
 		if (rot.x > XM_PIDIV2) rot.x = XM_PIDIV2;
-		else if (rot.x < XM_PIDIV2) rot.x = -XM_PIDIV2;
+		else if (rot.x < -XM_PIDIV2) rot.x = -XM_PIDIV2;
 		transform.SetRotation(rot);
 	}
 
 
-	UpdateViewMatrix(aspectRatio);
+	UpdateViewMatrix();
 }
 
-void Camera::UpdateViewMatrix(float aspectRatio)
+void Camera::UpdateViewMatrix()
 {
 	//XMMatrixLookAtLH() - look at a point in space
 	//XMMatrixLookToLH() - look toward a direction (vector)
@@ -63,7 +63,7 @@ void Camera::UpdateViewMatrix(float aspectRatio)
 
 }
 
-void Camera::UpdateProjectionMatrix()
+void Camera::UpdateProjectionMatrix(float aspectRatio)
 {
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(
 		XM_PIDIV4,		//fov in radians

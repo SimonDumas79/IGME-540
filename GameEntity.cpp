@@ -22,4 +22,5 @@ Transform* GameEntity::GetTransform()
 
 void GameEntity::Draw()
 {
+
 }

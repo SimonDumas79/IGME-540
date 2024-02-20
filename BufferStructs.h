@@ -9,3 +9,4 @@ struct VertexShaderData
 	DirectX::XMFLOAT4X4 viewMatrix;
 	DirectX::XMFLOAT4X4 projectionMatrix;
 };
+
