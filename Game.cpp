@@ -41,8 +41,9 @@ Game::Game(HINSTANCE hInstance)
 	
 #endif
 	//Giving all variables initial values
-	meshCount = 0;
-	meshes = new std::shared_ptr<Mesh>[meshCount];
+	entityCount = 0;
+	meshes = new std::shared_ptr<Mesh>[entityCount];
+	entities = new std::shared_ptr<GameEntity>[entityCount];
 	vsData = {};
 	std::memset(nextWindowTitle, '\0', sizeof(nextWindowTitle));
 	std::memset(windowTitles[0], '\0', sizeof(windowTitles[0]));
@@ -73,6 +74,9 @@ Game::~Game()
 	delete[] meshes;
 	meshes = nullptr;
 
+	delete[] entities;
+	entities = nullptr;
+
 }
 
 // --------------------------------------------------------
@@ -81,63 +85,6 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these later
-	LoadShaders();
-	CreateGeometry();
-	
-	// Set initial graphics API state
-	//  - These settings persist until we change them
-	//  - Some of these, like the primitive topology & input layout, probably won't change
-	//  - Others, like setting shaders, will need to be moved elsewhere later
-	{
-		// Tell the input assembler (IA) stage of the pipeline what kind of
-		// geometric primitives (points, lines or triangles) we want to draw.  
-		// Essentially: "What kind of shape should the GPU draw with our vertices?"
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		// Ensure the pipeline knows how to interpret all the numbers stored in
-		// the vertex buffer. For this course, all of your vertices will probably
-		// have the same layout, so we can just set this once at startup.
-		context->IASetInputLayout(inputLayout.Get());
-
-		// Set the active vertex and pixel shaders
-		//  - Once you start applying different shaders to different objects,
-		//    these calls will need to happen multiple times per frame
-		context->VSSetShader(vertexShader.Get(), 0, 0);
-		context->PSSetShader(pixelShader.Get(), 0, 0);
-	}
-
-	unsigned int size = sizeof(VertexShaderData);
-	size = (size + 15) / 16 * 16;
-
-	D3D11_BUFFER_DESC cbDesc;
-	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cbDesc.ByteWidth = size;
-	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbDesc.MiscFlags = 0;
-	cbDesc.StructureByteStride = 0;
-
-	//create the buffer
-	device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
-
-	context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
-
-
-
-	// Initialize ImGui itself & platform/renderer backends
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui_ImplWin32_Init(hWnd);
-	ImGui_ImplDX11_Init(device.Get(), context.Get());
-	// Pick a style (uncomment one of these 3)
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
-	//ImGui::StyleColorsClassic();
-
-	vsData.colorTint = XMFLOAT4(1, 0, 0, 0);
 	vsData.worldMatrix = XMFLOAT4X4(
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
@@ -149,6 +96,22 @@ void Game::Init()
 		5.0f,
 		0.002f,
 		(float)windowWidth / windowHeight);
+	// Helper methods for loading shaders, creating some basic
+	// geometry to draw and some simple camera matrices.
+	//  - You'll be expanding and/or replacing these later
+	LoadShaders();
+	CreateGeometry();
+	
+	// Initialize ImGui itself & platform/renderer backends
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui_ImplWin32_Init(hWnd);
+	ImGui_ImplDX11_Init(device.Get(), context.Get());
+	// Pick a style (uncomment one of these 3)
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+	//ImGui::StyleColorsClassic();
+
 }
 
 // --------------------------------------------------------
@@ -161,6 +124,12 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
+	ps = std::make_shared<SimplePixelShader>(device, context, FixPath(L"PixelShader.cso").c_str());
+	vs = std::make_shared<SimpleVertexShader>(device, context, FixPath(L"VertexShader.cso").c_str());
+
+
+	/*
+	* Creates Shaders manually
 	// BLOBs (or Binary Large OBjects) for reading raw data from external files
 	// - This is a simplified way of handling big chunks of external data
 	// - Literally just a big array of bytes read from a file
@@ -192,6 +161,7 @@ void Game::LoadShaders()
 			0,										// No classes in this shader
 			vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer
 	}
+	
 
 	// Create an input layout 
 	//  - This describes the layout of data sent to a vertex shader
@@ -219,6 +189,7 @@ void Game::LoadShaders()
 			vertexShaderBlob->GetBufferSize(),		// Size of the shader code that uses this layout
 			inputLayout.GetAddressOf());			// Address of the resulting ID3D11InputLayout pointer
 	}
+	*/
 }
 
 
@@ -230,8 +201,10 @@ void Game::CreateGeometry()
 {
 	//clean up empty meshes before reassignment
 	delete[] meshes;
-	meshCount = 3;
-	meshes = new std::shared_ptr<Mesh>[meshCount];
+	entityCount = 3;
+	meshes = new std::shared_ptr<Mesh>[entityCount];
+	delete[] entities;
+	entities = new std::shared_ptr<GameEntity>[entityCount];
 
 	// Create some temporary variables to represent colors
 	// - Not necessary, just makes things more readable
@@ -312,6 +285,11 @@ void Game::CreateGeometry()
 		meshes[2] = butterfly;
 	}
 	
+	for (int i = 0; i < entityCount; i++)
+	{
+		entities[i] = std::make_shared<GameEntity>(meshes[i]);
+	}
+
 }
 
 
@@ -389,26 +367,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
 	//vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
 
-	vsData.projectionMatrix = camera->GetProjection();
-	vsData.worldMatrix = XMFLOAT4X4(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
-	std::cout << camera->GetTransform()->GetWorldMatrix()._11 << ", " << camera->GetTransform()->GetWorldMatrix()._22 << ", " << camera->GetTransform()->GetWorldMatrix()._33 << ", " << camera->GetTransform()->GetWorldMatrix()._44 << "--";
-	std::cout<<	camera->GetTransform()->GetWorldMatrix()._41 << ", " << camera->GetTransform()->GetWorldMatrix()._42 << ", " << camera->GetTransform()->GetWorldMatrix()._43 << ", " << camera->GetTransform()->GetWorldMatrix()._44<< std::endl;
-	vsData.viewMatrix = camera->GetView();
-	vsData.colorTint = { colorTintUI[3], colorTintUI[0], colorTintUI[1], colorTintUI[2] };
-	//set fresh data in constant buffer for next draw
-	D3D11_MAPPED_SUBRESOURCE map;
-	context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
-	
-	memcpy(map.pData, &vsData, sizeof(VertexShaderData));
-	context->Unmap(constantBuffer.Get(), 0);
 	//insert mesh drawing here
-	for (unsigned int i = 0; i < meshCount; i++)
+	for (unsigned int i = 0; i < entityCount; i++)
 	{
-		meshes[i]->Draw(context);
+		entities[i]->Draw(context, vs, ps, camera, totalTime);
 	}
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
@@ -492,7 +454,7 @@ void Game::BuildUi()
 	}
 	if (ImGui::CollapsingHeader("Meshes"))
 	{
-		for (unsigned int i = 0; i < meshCount; i++)
+		for (unsigned int i = 0; i < entityCount; i++)
 		{
 			ImGui::Text("Mesh %d: %d triangle(s)", i, meshes[i]->GetIndexCount()/3);
 		}
@@ -500,8 +462,6 @@ void Game::BuildUi()
 	if (ImGui::CollapsingHeader("Edit Values"))
 	{
 		ImGui::DragFloat3("Offset", offsetUI, 0.1f);
-		ImGui::ColorEdit4("Color Tint", colorTintUI);
-		std::cout << colorTintUI[0] << " ," << colorTintUI[1] << " ," << colorTintUI[2] << " ," << colorTintUI[3] <<  " -------- " << vsData.colorTint.x << " ," << vsData.colorTint.y << " ," << vsData.colorTint.z << " ," << vsData.colorTint.w << "\n";
 	}
 	
 	ImGui::End();

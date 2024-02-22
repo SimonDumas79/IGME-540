@@ -11,7 +11,6 @@ Camera::Camera(
 	mouseLookSpeed(lookSpeed)
 {
 	transform.SetPosition(x, y, z);
-
 }
 
 Camera::~Camera()

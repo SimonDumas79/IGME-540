@@ -171,6 +171,7 @@ void Transform::Scale(DirectX::XMFLOAT3 scale)
 
 void Transform::UpdateWorldMatrix()
 {
+	
 	if (!matrixDirty)
 	{
 		return;
