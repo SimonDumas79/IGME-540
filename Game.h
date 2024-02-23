@@ -38,26 +38,24 @@ private:
 	//     Component Object Model, which DirectX objects do
 	//  - More info here: https://github.com/Microsoft/DirectXTK/wiki/ComPtr
 
-	// Buffers to hold actual geometry data
-	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
-
 	//imgui section
 	float bgColor[4] = { 0.4f, 0.6f, 0.75f, 1.0f }; // Cornflower Blue
 	bool showWindow = true;
 	int windowsToCreate = 0;
 	char nextWindowTitle[256];
 	char windowTitles[10][256];
-	float offsetUI[3];
-	float colorTintUI[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	std::shared_ptr<Mesh>* meshes;
 	std::shared_ptr<GameEntity>* entities;
+	DirectX::XMFLOAT3* entityPositions;
+	DirectX::XMFLOAT3* entityRotations;
+	DirectX::XMFLOAT3* entityScales;
 	unsigned int entityCount;
+	unsigned int meshCount;
 
-	VertexShaderData vsData;
-
-	std::shared_ptr<Camera> camera;
+	std::vector<std::shared_ptr<Camera>> cameras;
+	unsigned int activeCameraIndex;
+	unsigned int numCameras;
 
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;

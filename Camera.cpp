@@ -8,13 +8,18 @@ Camera::Camera(
 	float lookSpeed, 
 	float aspectRatio) : 
 	movementSpeed(moveSpeed),
-	mouseLookSpeed(lookSpeed)
+	mouseLookSpeed(lookSpeed),
+	aspectRatio(aspectRatio)
 {
 	transform.SetPosition(x, y, z);
+
+	viewMatrix = DirectX::XMFLOAT4X4();
+	projMatrix = DirectX::XMFLOAT4X4();
 }
 
 Camera::~Camera()
 {
+	
 }
 
 void Camera::Update(float dt)

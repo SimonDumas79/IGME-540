@@ -39,6 +39,9 @@ Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, int ve
 
 	//create the buffer
 	device->CreateBuffer(&ibd, &initialIndexData, &indexBuffer);
+
+	
+	
 }
 
 
@@ -46,6 +49,7 @@ Mesh::~Mesh()
 {
 	vertexBuffer.Reset();
 	indexBuffer.Reset();
+
 }
 
 Microsoft::WRL::ComPtr<ID3D11Buffer> Mesh::GetVertexBuffer()

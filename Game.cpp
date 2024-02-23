@@ -8,6 +8,7 @@
 #include "Transform.h"
 #include <iostream>
 
+
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
 #include <d3dcompiler.h>
@@ -42,9 +43,9 @@ Game::Game(HINSTANCE hInstance)
 #endif
 	//Giving all variables initial values
 	entityCount = 0;
+	activeCameraIndex = 0;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
 	entities = new std::shared_ptr<GameEntity>[entityCount];
-	vsData = {};
 	std::memset(nextWindowTitle, '\0', sizeof(nextWindowTitle));
 	std::memset(windowTitles[0], '\0', sizeof(windowTitles[0]));
 	for (int i = 0; i < 10; ++i) {
@@ -76,6 +77,10 @@ Game::~Game()
 
 	delete[] entities;
 	entities = nullptr;
+	
+	delete[] entityPositions;
+	delete[] entityRotations;
+	delete[] entityScales;
 
 }
 
@@ -85,17 +90,27 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
-	vsData.worldMatrix = XMFLOAT4X4(
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
-
-	camera = std::make_shared<Camera>(
+	
+	cameras.push_back(std::make_shared<Camera>(
 		0.0f, 0.0f, -10.5f,
 		5.0f,
 		0.002f,
-		(float)windowWidth / windowHeight);
+		(float)windowWidth / windowHeight));
+	cameras.push_back(std::make_shared<Camera>(
+		-5.0f, 0.0f, -5.5f,
+		5.0f,
+		0.002f,
+		(float)windowWidth / windowHeight)); 
+	cameras.push_back(std::make_shared<Camera>(
+			5.0f, 0.0f, -5.5f,
+			5.0f,
+			0.002f,
+			(float)windowWidth / windowHeight));
+	cameras[1]->GetTransform()->SetRotation(DirectX::XMFLOAT3(0, XM_PIDIV4, 0));
+	cameras[2]->GetTransform()->SetRotation(DirectX::XMFLOAT3(0, -XM_PIDIV4, 0));
+
+	numCameras = 3;
+
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
@@ -107,11 +122,14 @@ void Game::Init()
 	ImGui::CreateContext();
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX11_Init(device.Get(), context.Get());
-	// Pick a style (uncomment one of these 3)
+
+
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
 	//ImGui::StyleColorsClassic();
 
+	//Fixes "Current Primitive Technology is not valid" error
+	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 // --------------------------------------------------------
@@ -126,7 +144,6 @@ void Game::LoadShaders()
 {
 	ps = std::make_shared<SimplePixelShader>(device, context, FixPath(L"PixelShader.cso").c_str());
 	vs = std::make_shared<SimpleVertexShader>(device, context, FixPath(L"VertexShader.cso").c_str());
-
 
 	/*
 	* Creates Shaders manually
@@ -201,10 +218,20 @@ void Game::CreateGeometry()
 {
 	//clean up empty meshes before reassignment
 	delete[] meshes;
-	entityCount = 3;
+	meshCount = 3;
+	entityCount = 6;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
 	delete[] entities;
 	entities = new std::shared_ptr<GameEntity>[entityCount];
+
+	delete[] entityPositions;
+	entityPositions = new DirectX::XMFLOAT3[entityCount];
+
+	delete[] entityRotations;
+	entityRotations = new DirectX::XMFLOAT3[entityCount];
+
+	delete[] entityScales;
+	entityScales = new DirectX::XMFLOAT3[entityCount];
 
 	// Create some temporary variables to represent colors
 	// - Not necessary, just makes things more readable
@@ -256,7 +283,6 @@ void Game::CreateGeometry()
 		meshes[1] = box;
 	}
 	//Butterfly
-	//Square
 	{
 		Vertex vertices[] =
 		{
@@ -285,10 +311,15 @@ void Game::CreateGeometry()
 		meshes[2] = butterfly;
 	}
 	
-	for (int i = 0; i < entityCount; i++)
+	
+	for (unsigned int i = 0; i < meshCount; i++)
 	{
 		entities[i] = std::make_shared<GameEntity>(meshes[i]);
 	}
+
+	entities[meshCount] = std::make_shared<GameEntity>(meshes[1]);
+	entities[meshCount + 1] = std::make_shared<GameEntity>(meshes[1]);
+	entities[meshCount + 2] = std::make_shared<GameEntity>(meshes[2]);
 
 }
 
@@ -302,6 +333,8 @@ void Game::OnResize()
 {
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
+	for(unsigned int i = 0; i < numCameras; i++)
+	cameras[i]->UpdateProjectionMatrix(float(windowWidth) / float(windowHeight));
 }
 
 // --------------------------------------------------------
@@ -309,6 +342,7 @@ void Game::OnResize()
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+
 	UpdateImGui(deltaTime);
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
@@ -317,9 +351,9 @@ void Game::Update(float deltaTime, float totalTime)
 	BuildUi();
 	//update shader camera values
 
-	camera->UpdateViewMatrix();
-	camera->UpdateProjectionMatrix(float(windowWidth) / windowHeight);
-	camera->Update(deltaTime);
+	cameras[activeCameraIndex]->UpdateViewMatrix();
+	cameras[activeCameraIndex]->UpdateProjectionMatrix(float(windowWidth) / float(windowHeight));
+	cameras[activeCameraIndex]->Update(deltaTime);
 	/*
 		//When using DirectXMath, need to:
 	//1: Load existing data from storage to math types
@@ -331,8 +365,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	//3: Store the math type data back to a storage type
 	XMStoreFloat3(&vsData.offset, offsetVec);
-	*/
-	/*
+	
 	XMMATRIX world = XMLoadFloat4x4(&vsData.world);
 	XMMATRIX rot = XMMatrixRotationZ(deltaTime);
 	XMMATRIX sc = XMMatrixScaling(sin(totalTime), sin(totalTime), sin(totalTime));
@@ -370,7 +403,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	//insert mesh drawing here
 	for (unsigned int i = 0; i < entityCount; i++)
 	{
-		entities[i]->Draw(context, vs, ps, camera, totalTime);
+		entities[i]->Draw(context, vs, ps, cameras[activeCameraIndex], totalTime);
 	}
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
@@ -415,7 +448,7 @@ void Game::UpdateImGui(float deltaTime)
 
 void Game::BuildUi()
 {
-	ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Once);
 	ImGui::Begin("Inspector");
 	if (ImGui::CollapsingHeader("App Details"))
 	{
@@ -454,15 +487,70 @@ void Game::BuildUi()
 	}
 	if (ImGui::CollapsingHeader("Meshes"))
 	{
-		for (unsigned int i = 0; i < entityCount; i++)
+		for (unsigned int i = 0; i < meshCount; i++)
 		{
 			ImGui::Text("Mesh %d: %d triangle(s)", i, meshes[i]->GetIndexCount()/3);
 		}
 	}
-	if (ImGui::CollapsingHeader("Edit Values"))
+	if (ImGui::CollapsingHeader("Edit Entity Values"))
 	{
-		ImGui::DragFloat3("Offset", offsetUI, 0.1f);
+		for (unsigned int i = 0; i < entityCount; i++)
+		{
+			
+			if (ImGui::TreeNode(("Entity " + std::to_string(i + 1)).c_str()))
+			{
+				entityPositions[i] = entities[i]->GetTransform()->GetPosition();
+
+				ImGui::DragFloat3("Position", reinterpret_cast<float*>(&entityPositions[i]), 0.1f);
+
+				entities[i]->GetTransform()->SetPosition(entityPositions[i]);
+
+				entityRotations[i] = entities[i]->GetTransform()->GetPitchYawRoll();
+
+				ImGui::DragFloat3("Rotation", reinterpret_cast<float*>(&entityRotations[i]), 0.1f);
+
+				entities[i]->GetTransform()->SetRotation(entityRotations[i]);
+
+				entityScales[i] = entities[i]->GetTransform()->GetScale();
+
+				ImGui::DragFloat3("Scale", reinterpret_cast<float*>(&entityScales[i]), 0.1f);
+
+				entities[i]->GetTransform()->SetScale(entityScales[i]);
+				ImGui::TreePop();
+			}
+
+		}
 	}
-	
+	if (ImGui::CollapsingHeader("Cameras"))
+	{
+		if (ImGui::Button("Next Camera"))
+		{
+			if (activeCameraIndex == numCameras - 1)
+			{
+				activeCameraIndex = 0;
+			}
+			else
+			{
+				activeCameraIndex++;
+			}
+		}
+		else if (ImGui::Button("Previous Camera"))
+		{
+			if (activeCameraIndex == 0)
+			{
+				activeCameraIndex = numCameras - 1;
+			}
+			else
+			{
+				activeCameraIndex--;
+			}
+		}
+
+		ImGui::Text("Active Camera: ");
+		ImGui::Text("Position: (%f, %f, %f)", cameras[activeCameraIndex]->GetTransform()->GetPosition().x, 
+			cameras[activeCameraIndex]->GetTransform()->GetPosition().y, cameras[activeCameraIndex]->GetTransform()->GetPosition().z);
+		ImGui::Text("Facing: (%f, %f, %f)", cameras[activeCameraIndex]->GetTransform()->GetForwardVector().x,
+			cameras[activeCameraIndex]->GetTransform()->GetForwardVector().y, cameras[activeCameraIndex]->GetTransform()->GetForwardVector().z);
+	}
 	ImGui::End();
 }

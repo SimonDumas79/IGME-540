@@ -8,17 +8,18 @@ GameEntity::GameEntity(std::shared_ptr<Mesh> mesh)
 
 GameEntity::~GameEntity()
 {
-
+	mesh->~Mesh();
+	transform.~Transform();
 }
 
 std::shared_ptr<Mesh> GameEntity::GetMesh()
 {
-	return std::shared_ptr<Mesh>();
+	return mesh;
 }
 
 Transform* GameEntity::GetTransform()
 {
-	return nullptr;
+	return &transform;
 }
 
 void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::shared_ptr<SimpleVertexShader> vs, std::shared_ptr<SimplePixelShader> ps, std::shared_ptr<Camera> camera, float totalTime)
@@ -38,4 +39,5 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::
 	vs->CopyAllBufferData();
 
 	mesh->Draw(context);
+	
 }
