@@ -37,9 +37,10 @@ void Camera::Update(float dt)
 
 		XMFLOAT3 rot = transform.GetPitchYawRoll();
 		if (rot.x > XM_PIDIV2) rot.x = XM_PIDIV2;
-		else if (rot.x < XM_PIDIV2) rot.x = -XM_PIDIV2;
+		else if (rot.x < -XM_PIDIV2) rot.x = -XM_PIDIV2;
 		transform.SetRotation(rot);
 	}
+
 
 	UpdateViewMatrix();
 }
