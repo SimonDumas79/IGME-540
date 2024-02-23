@@ -142,7 +142,7 @@ void Game::Init()
 		1.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f);
+		0.0f, 0.0f, 0.0f, 1.0f);
 
 	camera = std::make_shared<Camera>(
 		0.0f, 0.0f, -0.5f,
@@ -339,10 +339,10 @@ void Game::Update(float deltaTime, float totalTime)
 	BuildUi();
 	//update shader camera values
 
-	camera->UpdateViewMatrix(float(windowWidth) / windowHeight);
-	camera->UpdateProjectionMatrix();
-	vsData.projectionMatrix = camera->GetProjection();
-	vsData.viewMatrix = camera->GetView();
+	camera->UpdateViewMatrix();
+	camera->UpdateProjectionMatrix(float(windowWidth) / windowHeight);
+	camera->Update(deltaTime);
+
 	/*
 		//When using DirectXMath, need to:
 	//1: Load existing data from storage to math types
@@ -389,6 +389,14 @@ void Game::Draw(float deltaTime, float totalTime)
 	
 	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
 	//vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
+
+	vsData.projectionMatrix = camera->GetProjection();
+	vsData.worldMatrix = XMFLOAT4X4(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);;
+	vsData.viewMatrix = camera->GetView();
 	vsData.colorTint = { colorTintUI[3], colorTintUI[0], colorTintUI[1], colorTintUI[2] };
 	//set fresh data in constant buffer for next draw
 	D3D11_MAPPED_SUBRESOURCE map;
@@ -492,7 +500,6 @@ void Game::BuildUi()
 	{
 		ImGui::DragFloat3("Offset", offsetUI, 0.1f);
 		ImGui::ColorEdit4("Color Tint", colorTintUI);
-		std::cout << colorTintUI[0] << " ," << colorTintUI[1] << " ," << colorTintUI[2] << " ," << colorTintUI[3] <<  " -------- " << vsData.colorTint.x << " ," << vsData.colorTint.y << " ," << vsData.colorTint.z << " ," << vsData.colorTint.w << "\n";
 	}
 	
 	ImGui::End();

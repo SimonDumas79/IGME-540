@@ -12,8 +12,8 @@ public:
 	~Camera();
 
 	void Update(float dt);
-	void UpdateViewMatrix(float aspectRatio);
-	void UpdateProjectionMatrix();
+	void UpdateViewMatrix();
+	void UpdateProjectionMatrix(float aspectRatio);
 
 	DirectX::XMFLOAT4X4 GetView();
 	DirectX::XMFLOAT4X4 GetProjection();

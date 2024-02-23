@@ -11,7 +11,6 @@ Camera::Camera(
 	mouseLookSpeed(lookSpeed)
 {
 	transform.SetPosition(x, y, z);
-
 }
 
 Camera::~Camera()
@@ -42,11 +41,10 @@ void Camera::Update(float dt)
 		transform.SetRotation(rot);
 	}
 
-
-	UpdateViewMatrix(aspectRatio);
+	UpdateViewMatrix();
 }
 
-void Camera::UpdateViewMatrix(float aspectRatio)
+void Camera::UpdateViewMatrix()
 {
 	//XMMatrixLookAtLH() - look at a point in space
 	//XMMatrixLookToLH() - look toward a direction (vector)
@@ -63,7 +61,7 @@ void Camera::UpdateViewMatrix(float aspectRatio)
 
 }
 
-void Camera::UpdateProjectionMatrix()
+void Camera::UpdateProjectionMatrix(float aspectRatio)
 {
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(
 		XM_PIDIV4,		//fov in radians
