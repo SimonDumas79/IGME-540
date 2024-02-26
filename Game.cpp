@@ -218,8 +218,8 @@ void Game::CreateGeometry()
 {
 	//clean up empty meshes before reassignment
 	delete[] meshes;
-	meshCount = 3;
-	entityCount = 6;
+	meshCount = 4;
+	entityCount = 7;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
 	delete[] entities;
 	entities = new std::shared_ptr<GameEntity>[entityCount];
@@ -309,6 +309,68 @@ void Game::CreateGeometry()
 		butterfly = std::make_shared<Mesh>(device, vertices, 12, indices, 12); // Initialization
 
 		meshes[2] = butterfly;
+	}
+	//Cube
+	{
+		Vertex vertices[] =
+		{
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), red },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), red },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), red },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), blue },
+
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), red },
+			{ XMFLOAT3(+0.5f, +0.5f, +1.0f), blue },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), red },
+			{ XMFLOAT3(+0.5f, +0.5f, +1.0f), blue },
+			{ XMFLOAT3(+0.5f, -0.5f, +1.0f), red },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), blue },
+
+
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), red },
+			{ XMFLOAT3(-0.5f, +0.5f, +1.0f), blue },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), red },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, -0.5f, +1.0f), red },
+			{ XMFLOAT3(-0.5f, +0.5f, +1.0f), blue },
+
+			{ XMFLOAT3(-0.5f, -0.5f, +1.0f), red },
+			{ XMFLOAT3(+0.5f, -0.5f, +1.0f), blue },
+			{ XMFLOAT3(+0.5f, +0.5f, +1.0f), red },
+			{ XMFLOAT3(+0.5f, +0.5f, +1.0f), blue },
+			{ XMFLOAT3(-0.5f, +0.5f, +1.0f), red },
+			{ XMFLOAT3(-0.5f, -0.5f, +1.0f), blue },
+
+			{ XMFLOAT3(-0.5f, +0.5f, +1.0f), red },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), red },
+			{ XMFLOAT3(-0.5f, +0.5f, +1.0f), blue },
+			{ XMFLOAT3(+0.5f, +0.5f, +1.0f), red },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), blue },
+
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), red },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, -0.5f, +1.0f), red },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), blue },
+			{ XMFLOAT3(+0.5f, -0.5f, +1.0f), red },
+			{ XMFLOAT3(-0.5f, -0.5f, +1.0f), blue },
+		};
+		// Set up indices, which tell us which vertices to use and in which order
+		// - This is redundant for just 3 vertices, but will be more useful later
+		// - Indices are technically not required if the vertices are in the buffer 
+		//    in the correct order and each one will be used exactly once
+		// - But just to see how it's done...
+		unsigned int indices[36];
+		for (int i = 0; i < 36; i++)
+		{
+			indices[i] = i;
+		}
+		std::shared_ptr<Mesh> cube; // Declaration (probably in a header)
+		cube = std::make_shared<Mesh>(device, vertices, 36, indices, 36); // Initialization
+
+		meshes[3] = cube;
 	}
 	
 	
