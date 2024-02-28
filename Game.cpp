@@ -385,7 +385,7 @@ void Game::CreateGeometry()
 	
 	for (unsigned int i = 0; i < meshCount; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i]);
+		entities[i] = std::make_shared<GameEntity>(meshes[i], materials[3]);
 	}
 
 	entities[meshCount] = std::make_shared<GameEntity>(meshes[1]);
