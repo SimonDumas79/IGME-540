@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "SimpleShader.h"
 #include "GameEntity.h"
+#include "Material.h"
 
 class Game 
 	: public DXCore
@@ -30,6 +31,7 @@ private:
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void LoadShaders(); 
 	void CreateGeometry();
+	void CreateMaterials();
 	void UpdateImGui(float deltaTime);
 	void BuildUi();
 
@@ -60,5 +62,6 @@ private:
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;
 
+	std::vector<Material> materials;
 };
 

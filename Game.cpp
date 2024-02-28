@@ -35,11 +35,11 @@ Game::Game(HINSTANCE hInstance)
 {
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
-	
+
 	CreateConsoleWindow(500, 120, 32, 120);
 	printf("Console window created successfully.  Feel free to printf() here.\n");
 
-	
+
 #endif
 	//Giving all variables initial values
 	entityCount = 0;
@@ -71,13 +71,13 @@ Game::~Game()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
-	
+
 	delete[] meshes;
 	meshes = nullptr;
 
 	delete[] entities;
 	entities = nullptr;
-	
+
 	delete[] entityPositions;
 	delete[] entityRotations;
 	delete[] entityScales;
@@ -90,7 +90,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
-	
+
 	cameras.push_back(std::make_shared<Camera>(
 		0.0f, 0.0f, -10.5f,
 		5.0f,
@@ -100,23 +100,25 @@ void Game::Init()
 		-5.0f, 0.0f, -5.5f,
 		5.0f,
 		0.002f,
-		(float)windowWidth / windowHeight)); 
+		(float)windowWidth / windowHeight));
 	cameras.push_back(std::make_shared<Camera>(
-			5.0f, 0.0f, -5.5f,
-			5.0f,
-			0.002f,
-			(float)windowWidth / windowHeight));
+		5.0f, 0.0f, -5.5f,
+		5.0f,
+		0.002f,
+		(float)windowWidth / windowHeight));
 	cameras[1]->GetTransform()->SetRotation(DirectX::XMFLOAT3(0, XM_PIDIV4, 0));
 	cameras[2]->GetTransform()->SetRotation(DirectX::XMFLOAT3(0, -XM_PIDIV4, 0));
 
 	numCameras = 3;
 
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these later
+	//load shaders into pointers
 	LoadShaders();
+
+
+
+	//create game entities
 	CreateGeometry();
-	
+
 	// Initialize ImGui itself & platform/renderer backends
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -142,8 +144,10 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	ps = std::make_shared<SimplePixelShader>(device, context, FixPath(L"PixelShader.cso").c_str());
-	vs = std::make_shared<SimpleVertexShader>(device, context, FixPath(L"VertexShader.cso").c_str());
+	ps = std::make_shared<SimplePixelShader>(
+		device, context, FixPath(L"PixelShader.cso").c_str());
+	vs = std::make_shared<SimpleVertexShader>(
+		device, context, FixPath(L"VertexShader.cso").c_str());
 
 	/*
 	* Creates Shaders manually
@@ -178,9 +182,9 @@ void Game::LoadShaders()
 			0,										// No classes in this shader
 			vertexShader.GetAddressOf());			// The address of the ID3D11VertexShader pointer
 	}
-	
 
-	// Create an input layout 
+
+	// Create an input layout
 	//  - This describes the layout of data sent to a vertex shader
 	//  - In other words, it describes how to interpret data (numbers) in a vertex buffer
 	//  - Doing this NOW because it requires a vertex shader's byte code to verify against!
@@ -209,7 +213,12 @@ void Game::LoadShaders()
 	*/
 }
 
-
+void Game::CreateMaterials()
+{
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 0, 0, 1), vs, ps));
+	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, ps));
+	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, ps));
+}
 
 // --------------------------------------------------------
 // Creates the geometry we're going to draw - a single triangle for now
@@ -235,9 +244,9 @@ void Game::CreateGeometry()
 
 	// Create some temporary variables to represent colors
 	// - Not necessary, just makes things more readable
-	XMFLOAT4 red	= XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 green	= XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 blue	= XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 	XMFLOAT4 black = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -304,7 +313,7 @@ void Game::CreateGeometry()
 		// - Indices are technically not required if the vertices are in the buffer 
 		//    in the correct order and each one will be used exactly once
 		// - But just to see how it's done...
-		unsigned int indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+		unsigned int indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 		std::shared_ptr<Mesh> butterfly; // Declaration (probably in a header)
 		butterfly = std::make_shared<Mesh>(device, vertices, 12, indices, 12); // Initialization
 
@@ -372,7 +381,7 @@ void Game::CreateGeometry()
 
 		meshes[3] = cube;
 	}
-	
+
 	
 	for (unsigned int i = 0; i < meshCount; i++)
 	{
@@ -395,8 +404,8 @@ void Game::OnResize()
 {
 	// Handle base-level DX resize stuff
 	DXCore::OnResize();
-	for(unsigned int i = 0; i < numCameras; i++)
-	cameras[i]->UpdateProjectionMatrix(float(windowWidth) / float(windowHeight));
+	for (unsigned int i = 0; i < numCameras; i++)
+		cameras[i]->UpdateProjectionMatrix(float(windowWidth) / float(windowHeight));
 }
 
 // --------------------------------------------------------
@@ -427,16 +436,16 @@ void Game::Update(float deltaTime, float totalTime)
 
 	//3: Store the math type data back to a storage type
 	XMStoreFloat3(&vsData.offset, offsetVec);
-	
+
 	XMMATRIX world = XMLoadFloat4x4(&vsData.world);
 	XMMATRIX rot = XMMatrixRotationZ(deltaTime);
 	XMMATRIX sc = XMMatrixScaling(sin(totalTime), sin(totalTime), sin(totalTime));
 
 	//world = XMMatrixMultiply(world, rot);
-	// 
+	//
 	//this is less performant than the xmmatrixmultiply
 	world = world * sc * rot;
-	
+
 	XMStoreFloat4x4(&vsData.world, world);
 	*/
 }
@@ -458,7 +467,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 
 
-	
+
 	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
 	//vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
 
@@ -504,8 +513,8 @@ void Game::UpdateImGui(float deltaTime)
 	input.SetKeyboardCapture(io.WantCaptureKeyboard);
 	input.SetMouseCapture(io.WantCaptureMouse);
 	// Show the demo window
-	if(showWindow)
-	ImGui::ShowDemoWindow();
+	if (showWindow)
+		ImGui::ShowDemoWindow();
 }
 
 void Game::BuildUi()
@@ -527,7 +536,7 @@ void Game::BuildUi()
 			if (windowsToCreate < 10)
 			{
 				strcpy_s(windowTitles[windowsToCreate], nextWindowTitle);
-				windowsToCreate++; 
+				windowsToCreate++;
 				nextWindowTitle[0] = '\0';
 			}
 		}
@@ -541,7 +550,7 @@ void Game::BuildUi()
 			}
 			else
 			{
-				ImGui::Begin(("New Window " + std::to_string(i+1)).c_str());
+				ImGui::Begin(("New Window " + std::to_string(i + 1)).c_str());
 			}
 			ImGui::Text("I'm a window!");
 			ImGui::End();
@@ -551,14 +560,14 @@ void Game::BuildUi()
 	{
 		for (unsigned int i = 0; i < meshCount; i++)
 		{
-			ImGui::Text("Mesh %d: %d triangle(s)", i, meshes[i]->GetIndexCount()/3);
+			ImGui::Text("Mesh %d: %d triangle(s)", i, meshes[i]->GetIndexCount() / 3);
 		}
 	}
 	if (ImGui::CollapsingHeader("Edit Entity Values"))
 	{
 		for (unsigned int i = 0; i < entityCount; i++)
 		{
-			
+
 			if (ImGui::TreeNode(("Entity " + std::to_string(i + 1)).c_str()))
 			{
 				entityPositions[i] = entities[i]->GetTransform()->GetPosition();
@@ -609,7 +618,7 @@ void Game::BuildUi()
 		}
 
 		ImGui::Text("Active Camera: ");
-		ImGui::Text("Position: (%f, %f, %f)", cameras[activeCameraIndex]->GetTransform()->GetPosition().x, 
+		ImGui::Text("Position: (%f, %f, %f)", cameras[activeCameraIndex]->GetTransform()->GetPosition().x,
 			cameras[activeCameraIndex]->GetTransform()->GetPosition().y, cameras[activeCameraIndex]->GetTransform()->GetPosition().z);
 		ImGui::Text("Facing: (%f, %f, %f)", cameras[activeCameraIndex]->GetTransform()->GetForwardVector().x,
 			cameras[activeCameraIndex]->GetTransform()->GetForwardVector().y, cameras[activeCameraIndex]->GetTransform()->GetForwardVector().z);
