@@ -26,6 +26,6 @@ float random(float2 s)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    float4 color = random(input.screenPosition.xy);
+    float4 color = random(input.screenPosition.xy) * colorTint;
 	return color;
 }
