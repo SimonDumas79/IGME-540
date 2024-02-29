@@ -146,6 +146,8 @@ void Game::LoadShaders()
 {
 	ps = std::make_shared<SimplePixelShader>(
 		device, context, FixPath(L"PixelShader.cso").c_str());
+	customPixelShader1 = std::make_shared<SimplePixelShader>(
+		device, context, FixPath(L"CustomPixelShader1.cso").c_str());
 	vs = std::make_shared<SimpleVertexShader>(
 		device, context, FixPath(L"VertexShader.cso").c_str());
 
@@ -217,7 +219,7 @@ void Game::CreateMaterials()
 {
 	materials.push_back(Material(DirectX::XMFLOAT4(1, 0, 0, 1), vs, ps));
 	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, ps));
-	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, ps));
+	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, customPixelShader1));
 
 	numMaterials = 3;
 }
