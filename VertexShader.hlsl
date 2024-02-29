@@ -16,6 +16,7 @@
 //Layout of constant buffer, Order and data types matter
 cbuffer DataFromCPU : register(b0)
 {
+    float4 colorTint;
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
@@ -45,7 +46,7 @@ VertexToPixel main( VertexShaderInput input )
 
 	matrix wvp = mul(projectionMatrix, mul(viewMatrix, worldMatrix));
 	output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
-	output.color = input.color;
+	output.color =  colorTint;
 	// Pass the color through 
 	// - The values will be interpolated per-pixel by the rasterizer
 	// - We don't need to alter it here, but we do need to send it to the pixel shader

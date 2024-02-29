@@ -16,12 +16,14 @@ class Mesh
 
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext>	context;
 
+		void CreateBuffers(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, unsigned int vertexCount, unsigned int* indices);
 
 	public:
 
 		Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, int vertexCount, unsigned int* indices, int indexCount);
-		
 
+		Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, const wchar_t* fileName);
+		
 		~Mesh();
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer();

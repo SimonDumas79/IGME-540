@@ -28,8 +28,6 @@ public:
 	void SetMaterial(std::shared_ptr<Material> material);
 
 	void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context,
-		std::shared_ptr<SimpleVertexShader> vs,
-		std::shared_ptr<SimplePixelShader> ps,
 		std::shared_ptr<Camera> camera,
 		float totalTime);
 

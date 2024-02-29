@@ -114,7 +114,7 @@ void Game::Init()
 	//load shaders into pointers
 	LoadShaders();
 
-
+	CreateMaterials();
 
 	//create game entities
 	CreateGeometry();
@@ -218,6 +218,8 @@ void Game::CreateMaterials()
 	materials.push_back(Material(DirectX::XMFLOAT4(1, 0, 0, 1), vs, ps));
 	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, ps));
 	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, ps));
+
+	numMaterials = 3;
 }
 
 // --------------------------------------------------------
@@ -227,8 +229,8 @@ void Game::CreateGeometry()
 {
 	//clean up empty meshes before reassignment
 	delete[] meshes;
-	meshCount = 4;
-	entityCount = 7;
+	meshCount = 11;
+	entityCount = meshCount;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
 	delete[] entities;
 	entities = new std::shared_ptr<GameEntity>[entityCount];
@@ -250,13 +252,16 @@ void Game::CreateGeometry()
 	XMFLOAT4 black = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	XMFLOAT4 white = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
+	XMFLOAT3 baseNormal = XMFLOAT3(0, 0, -1);
+	XMFLOAT2 baseUV = XMFLOAT2(0, 0);
+
 	//Triangle
 	{
 		Vertex vertices[] =
 		{
-			{ XMFLOAT3(+0.0f, +0.5f, +0.0f), red },
-			{ XMFLOAT3(+0.5f, -0.5f, +0.0f), blue },
-			{ XMFLOAT3(-0.5f, -0.5f, +0.0f), green },
+			{ XMFLOAT3(+0.0f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.0f), baseNormal, baseUV },
 		};
 		// Set up indices, which tell us which vertices to use and in which order
 		// - This is redundant for just 3 vertices, but will be more useful later
@@ -273,12 +278,12 @@ void Game::CreateGeometry()
 	{
 		Vertex vertices[] =
 		{
-			{ XMFLOAT3(-0.5f, +0.7f, +0.0f), green },
-			{ XMFLOAT3(-0.2f, +0.7f, +0.0f), blue },
-			{ XMFLOAT3(-0.2f, +0.2f, +0.0f), blue },
-			{ XMFLOAT3(-0.5f, +0.7f, +0.0f), green },
-			{ XMFLOAT3(-0.2f, +0.2f, +0.0f), blue },
-			{ XMFLOAT3(-0.5f, +0.2f, +0.0f), green }
+			{ XMFLOAT3(-0.5f, +0.7f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.2f, +0.7f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.2f, +0.2f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.7f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.2f, +0.2f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.2f, +0.0f), baseNormal, baseUV }
 		};
 		// Set up indices, which tell us which vertices to use and in which order
 		// - This is redundant for just 3 vertices, but will be more useful later
@@ -295,18 +300,18 @@ void Game::CreateGeometry()
 	{
 		Vertex vertices[] =
 		{
-			{ XMFLOAT3(+0.5f, +0.7f, +0.0f), red },
-			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), white },
-			{ XMFLOAT3(+0.35f, +0.5f, +0.0f), blue },
-			{ XMFLOAT3(+0.6f, +0.7f, +0.0f), red },
-			{ XMFLOAT3(+0.75f, +0.5f, +0.0f), blue },
-			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), white },
-			{ XMFLOAT3(+0.35f, +0.5f, +0.0f), blue },
-			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), white },
-			{ XMFLOAT3(+0.45f, +0.0f, +0.0f), green },
-			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), white },
-			{ XMFLOAT3(+0.75f, +0.5f, +0.0f), blue },
-			{ XMFLOAT3(+0.65f, +0.0f, +0.0f), green },
+			{ XMFLOAT3(+0.5f, +0.7f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.35f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.6f, +0.7f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.75f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.35f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.45f, +0.0f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.55f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.75f, +0.5f, +0.0f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.65f, +0.0f, +0.0f), baseNormal, baseUV },
 		};
 		// Set up indices, which tell us which vertices to use and in which order
 		// - This is redundant for just 3 vertices, but will be more useful later
@@ -323,49 +328,50 @@ void Game::CreateGeometry()
 	{
 		Vertex vertices[] =
 		{
-			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), red },
-			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), blue },
-			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), red },
-			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), blue },
-			{ XMFLOAT3(-0.5f, +0.5f, -0.5f), red },
-			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), blue },
+			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), baseNormal, baseUV },
 
-			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), red },
-			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), blue },
-			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), red },
-			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), blue },
-			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), red },
-			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), blue },
+			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), baseNormal, baseUV },
 
 
-			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), red },
-			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), blue },
-			{ XMFLOAT3(-0.5f, +0.5f, -0.5f), red },
-			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), blue },
-			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), red },
-			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), baseNormal, baseUV },
 
-			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), red },
-			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), blue },
-			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), red },
-			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), blue },
-			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), red },
-			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), baseNormal, baseUV },
 
-			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), red },
-			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), blue },
-			{ XMFLOAT3(-0.5f, +0.5f, -0.5f), red },
-			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), blue },
-			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), red },
-			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), blue },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, +0.5f, -0.5f), baseNormal, baseUV },
 
-			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), red },
-			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), blue },
-			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), red },
-			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), blue },
-			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), red },
-			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), blue },
+			{ XMFLOAT3(-0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, -0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(+0.5f, -0.5f, +0.5f), baseNormal, baseUV },
+			{ XMFLOAT3(-0.5f, -0.5f, +0.5f), baseNormal, baseUV },
 		};
+
 		// Set up indices, which tell us which vertices to use and in which order
 		// - This is redundant for just 3 vertices, but will be more useful later
 		// - Indices are technically not required if the vertices are in the buffer 
@@ -382,16 +388,28 @@ void Game::CreateGeometry()
 		meshes[3] = cube;
 	}
 
-	
+	meshes[4] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/sphere.obj").c_str());
+	meshes[5] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cube.obj").c_str());
+	meshes[6] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cylinder.obj").c_str());
+	meshes[7] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/helix.obj").c_str());
+	meshes[8] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad.obj").c_str());
+	meshes[9] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad_double_sided.obj").c_str());
+	meshes[10] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/torus.obj").c_str());
+
 	for (unsigned int i = 0; i < meshCount; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], materials[3]);
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[i % numMaterials]));
 	}
 
-	entities[meshCount] = std::make_shared<GameEntity>(meshes[1]);
-	entities[meshCount + 1] = std::make_shared<GameEntity>(meshes[1]);
-	entities[meshCount + 2] = std::make_shared<GameEntity>(meshes[2]);
 
+	for (unsigned int i = 0; i < entityCount; i++)
+	{
+		entities[i]->GetTransform()->SetPosition(DirectX::XMFLOAT3(i * 5 - entityCount * 2.5f, 0, 5));
+		entityPositions[i] = entities[i]->GetTransform()->GetPosition();
+	}
+
+	entities[8]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	entities[9]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
 }
 
 
@@ -467,15 +485,13 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 
 
-
-	//XMStoreFloat4x4(&vsData.world, XMMatrixIdentity());
-	//vsData.offset = { offsetUI[0], offsetUI[1], offsetUI[2] };
-
-	//insert mesh drawing here
+	//loop through list of entities drawing each
 	for (unsigned int i = 0; i < entityCount; i++)
 	{
-		entities[i]->Draw(context, vs, ps, cameras[activeCameraIndex], totalTime);
+		entities[i]->Draw(context, cameras[activeCameraIndex], totalTime);
 	}
+
+
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)

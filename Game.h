@@ -5,7 +5,6 @@
 #include <DirectXMath.h>
 #include <wrl/client.h> // Used for ComPtr - a smart pointer for COM objects
 #include <memory>
-#include "BufferStructs.h"
 #include "Camera.h"
 #include "SimpleShader.h"
 #include "GameEntity.h"
@@ -63,5 +62,6 @@ private:
 	std::shared_ptr<SimplePixelShader> ps;
 
 	std::vector<Material> materials;
+	unsigned int numMaterials;
 };
 

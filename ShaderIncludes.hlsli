@@ -10,7 +10,8 @@ struct VertexShaderInput
 	//  |    |                |
 	//  v    v                v
     float3 localPosition : POSITION; // XYZ position
-    float4 color : COLOR; // RGBA color
+    float3 normal : NORMAL;
+    float2 uv : TEXCOORD;
 };
 
 struct VertexToPixel

@@ -159,7 +159,6 @@
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BufferStructs.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DXCore.h" />
     <ClInclude Include="Game.h" />

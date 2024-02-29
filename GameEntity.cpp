@@ -36,21 +36,22 @@ void GameEntity::SetMaterial(std::shared_ptr<Material> material)
 	this->material = material;
 }
 
-void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::shared_ptr<SimpleVertexShader> vs, std::shared_ptr<SimplePixelShader> ps, std::shared_ptr<Camera> camera, float totalTime)
+void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::shared_ptr<Camera> camera, float totalTime)
 {
 
-	vs->SetShader();
-	ps->SetShader();
+	material->GetVertexShader()->SetShader();
+	material->GetPixelShader()->SetShader();
 
 	//provide data for vertex shader's cbuffer(s)
 
-	vs->SetMatrix4x4("worldMatrix", transform.GetWorldMatrix());
-	vs->SetMatrix4x4("viewMatrix", camera->GetView());
-	vs->SetMatrix4x4("projectionMatrix", camera->GetProjection());
+	material->GetVertexShader()->SetFloat4("colorTint", material->GetColorTint());
+	material->GetVertexShader()->SetMatrix4x4("worldMatrix", transform.GetWorldMatrix());
+	material->GetVertexShader()->SetMatrix4x4("viewMatrix", camera->GetView());
+	material->GetVertexShader()->SetMatrix4x4("projectionMatrix", camera->GetProjection());
 	//vs->SetFloat("totalTime", totalTime);
 
 	//copy data to gpu
-	vs->CopyAllBufferData();
+	material->GetVertexShader()->CopyAllBufferData();
 
 	mesh->Draw(context);
 	
