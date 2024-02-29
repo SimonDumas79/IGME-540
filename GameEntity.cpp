@@ -44,7 +44,6 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::
 
 	//provide data for vertex shader's cbuffer(s)
 
-	material->GetVertexShader()->SetFloat4("colorTint", material->GetColorTint());
 	material->GetVertexShader()->SetMatrix4x4("worldMatrix", transform.GetWorldMatrix());
 	material->GetVertexShader()->SetMatrix4x4("viewMatrix", camera->GetView());
 	material->GetVertexShader()->SetMatrix4x4("projectionMatrix", camera->GetProjection());
@@ -52,6 +51,12 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::
 
 	//copy data to gpu
 	material->GetVertexShader()->CopyAllBufferData();
+
+	material->GetPixelShader()->SetFloat4("colorTint", material->GetColorTint());
+	material->GetPixelShader()->SetFloat("totalTime", totalTime);
+
+	//copy data to gpu
+	material->GetPixelShader()->CopyAllBufferData();
 
 	mesh->Draw(context);
 	

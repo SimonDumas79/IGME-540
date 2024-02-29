@@ -5,6 +5,12 @@
 // - The variable names don't have to match other shaders (just the semantics)
 // - Each variable must have a semantic, which defines its usage
 
+cbuffer DataFromCPU : register(b0)
+{
+    float4 colorTint;
+    float totalTime;
+}
+
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
 // 
@@ -16,5 +22,5 @@
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	return input.color;
+	return colorTint;
 }
