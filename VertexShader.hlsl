@@ -17,6 +17,7 @@
 cbuffer DataFromCPU : register(b0)
 {
 	matrix worldMatrix;
+	matrix worldInvTranspose;
 	matrix viewMatrix;
 	matrix projectionMatrix;
 }

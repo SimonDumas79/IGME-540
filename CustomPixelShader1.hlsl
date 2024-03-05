@@ -22,5 +22,6 @@ cbuffer DataFromCPU : register(b0)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    return float4(1, 0, 1, 1);
+    float4 color = random(input.screenPosition.xy) * colorTint;
+    return color;
 }
