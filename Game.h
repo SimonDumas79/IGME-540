@@ -63,5 +63,8 @@ private:
 	std::shared_ptr<SimplePixelShader> customPixelShader1;
 
 	std::vector<Material> materials;
+
+	DirectX::XMFLOAT3 ambientColor;
+
 };
 

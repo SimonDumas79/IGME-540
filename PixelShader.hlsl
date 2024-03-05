@@ -1,4 +1,6 @@
 #include "ShaderIncludes.hlsli"
+#define MAX_LIGHTS 128
+
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader
 // - The name of the struct itself is unimportant
@@ -7,8 +9,14 @@
 
 cbuffer DataFromCPU : register(b0)
 {
-    float4 colorTint;
-    float totalTime;
+	float4 colorTint;
+	float3 cameraPos;
+	float totalTime;
+	Light lights[128];
+	float3 ambientColor;
+	float roughness;
+	int numLights;
+	float3 padding; //maintain 16 byte partitions
 }
 
 // --------------------------------------------------------
@@ -22,5 +30,6 @@ cbuffer DataFromCPU : register(b0)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    return colorTint;
+	float3 color = ambientColor * float3(colorTint.rgb);
+	return float4(color, 1);
 }

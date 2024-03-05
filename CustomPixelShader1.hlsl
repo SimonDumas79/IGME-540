@@ -31,7 +31,7 @@ float4 main(VertexToPixel input) : SV_TARGET
     input.normal = abs(input.normal) / 2.0f;
     color += float4(input.normal, 1);
     
-    if (abs(input.localPosition.x - cos(totalTime)) < 1.7f && abs(input.localPosition.z - sin(totalTime)) < 1.7f)
+    if (abs(input.worldPosition.x - cos(totalTime)) < 1.7f && abs(input.worldPosition.z - sin(totalTime)) < 1.7f)
     {
         color *= float4(0.4, 0.4, 0.4, 0);
     }

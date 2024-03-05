@@ -2,10 +2,12 @@
 
 Material::Material(DirectX::XMFLOAT4 colorTint, 
     std::shared_ptr<SimpleVertexShader> vertexShader, 
-    std::shared_ptr<SimplePixelShader> pixelShader) :
+    std::shared_ptr<SimplePixelShader> pixelShader,
+    float roughness) :
     colorTint(colorTint),
     vs(vertexShader),
-    ps(pixelShader)
+    ps(pixelShader),
+    roughness(roughness)
 {
 }
 
@@ -43,4 +45,14 @@ void Material::SetPixelShader(std::shared_ptr<SimplePixelShader> pixelShader)
 std::shared_ptr<SimplePixelShader> Material::GetPixelShader()
 {
     return ps;
+}
+
+void Material::SetRoughness(float roughness)
+{
+    this->roughness = roughness;
+}
+
+float Material::GetRoughness()
+{
+    return roughness;
 }

@@ -13,11 +13,16 @@
 
 
 
-//Layout of constant buffer, Order and data types matter
-cbuffer DataFromCPU : register(b0)
+//change every entity
+cbuffer DataPerEntity : register(b0)
 {
 	matrix worldMatrix;
 	matrix worldInvTranspose;
+}
+
+//change once every draw call
+cbuffer DataPerFrame : register(b1)
+{
 	matrix viewMatrix;
 	matrix projectionMatrix;
 }
@@ -47,8 +52,8 @@ VertexToPixel main( VertexShaderInput input )
 	matrix wvp = mul(projectionMatrix, mul(viewMatrix, worldMatrix));
 	output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
     output.uv = input.uv;
-    output.normal = input.normal;
-    output.localPosition = input.localPosition;
+    output.normal = mul((float3x3)worldInvTranspose * input.normal);
+    output.worldPosition = mul(worldMatrix, float4(input.localPosition, 1)).xyz;
 	// Pass the color through 
 	// - The values will be interpolated per-pixel by the rasterizer
 	// - We don't need to alter it here, but we do need to send it to the pixel shader

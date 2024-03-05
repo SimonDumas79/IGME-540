@@ -42,6 +42,7 @@ Game::Game(HINSTANCE hInstance)
 
 #endif
 	//Giving all variables initial values
+	ambientColor = DirectX::XMFLOAT3(0.0f, 0.1f, 0.25f);
 	entityCount = 0;
 	activeCameraIndex = 0;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
@@ -217,9 +218,9 @@ void Game::LoadShaders()
 
 void Game::CreateMaterials()
 {
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 0, 0, 1), vs, ps));
-	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, customPixelShader1));
-	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, customPixelShader1));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, ps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, ps, 1.0f));
+	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, ps, 1.0f));
 
 }
 
@@ -489,10 +490,13 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-
+	vs->SetMatrix4x4("viewMatrix", cameras[activeCameraIndex]->GetView());
+	vs->SetMatrix4x4("projectionMatrix", cameras[activeCameraIndex]->GetProjection());
+	
 	//loop through list of entities drawing each
 	for (unsigned int i = 0; i < entityCount; i++)
 	{
+		entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientColor);
 		entities[i]->Draw(context, cameras[activeCameraIndex], totalTime);
 	}
 
