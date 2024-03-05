@@ -56,4 +56,9 @@ float Phong(float3 normal, float3 lightDirection, float3 viewVector, float specu
     
 }
 
+//spot lightDirection {
+//get angle from center with max(dot(tolight, lightDirection), 0.0f);
+//then raise D3DCOLORtoUBYTE4 power of falloff with pow(anglefromcenter, light.spotfalloff
+//}
+
 #endif
