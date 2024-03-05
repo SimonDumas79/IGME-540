@@ -46,6 +46,8 @@ VertexToPixel main( VertexShaderInput input )
 	matrix wvp = mul(projectionMatrix, mul(viewMatrix, worldMatrix));
 	output.screenPosition = mul(wvp, float4(input.localPosition, 1.0f));
     output.uv = input.uv;
+    output.normal = input.normal;
+    output.localPosition = input.localPosition;
 	// Pass the color through 
 	// - The values will be interpolated per-pixel by the rasterizer
 	// - We don't need to alter it here, but we do need to send it to the pixel shader

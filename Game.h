@@ -63,6 +63,5 @@ private:
 	std::shared_ptr<SimplePixelShader> customPixelShader1;
 
 	std::vector<Material> materials;
-	unsigned int numMaterials;
 };
 

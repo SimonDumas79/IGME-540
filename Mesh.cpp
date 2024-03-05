@@ -11,7 +11,8 @@ Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, int ve
 	
 }
 
-Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, const wchar_t* fileName)
+Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, const wchar_t* fileName):
+	indexCount(0)
 {
 
 	// Author: Chris Cascioli

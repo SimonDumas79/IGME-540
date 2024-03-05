@@ -41,8 +41,8 @@ void Camera::Update(float dt)
 		transform.Rotate(yDelta, xDelta, 0);
 
 		XMFLOAT3 rot = transform.GetPitchYawRoll();
-		if (rot.x > XM_PIDIV2) rot.x = XM_PIDIV2;
-		else if (rot.x < -XM_PIDIV2) rot.x = -XM_PIDIV2;
+		if (rot.x > XM_PIDIV2 - 0.02f) rot.x = XM_PIDIV2 - 0.02f;
+		else if (rot.x < -XM_PIDIV2 + 0.02f) rot.x = -XM_PIDIV2 + 0.02f;
 		transform.SetRotation(rot);
 	}
 

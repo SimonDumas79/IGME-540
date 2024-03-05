@@ -218,10 +218,9 @@ void Game::LoadShaders()
 void Game::CreateMaterials()
 {
 	materials.push_back(Material(DirectX::XMFLOAT4(1, 0, 0, 1), vs, ps));
-	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, ps));
+	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, customPixelShader1));
 	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, customPixelShader1));
 
-	numMaterials = 3;
 }
 
 // --------------------------------------------------------
@@ -398,11 +397,15 @@ void Game::CreateGeometry()
 	meshes[9] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad_double_sided.obj").c_str());
 	meshes[10] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/torus.obj").c_str());
 
-	for (unsigned int i = 0; i < meshCount; i++)
+	for (unsigned int i = 4; i < meshCount; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[i % numMaterials]));
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[i % (materials.size() - 1) + 1]));
 	}
 
+	for (unsigned int i = 0; i < 4; i++)
+	{
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[0]));
+	}
 
 	for (unsigned int i = 0; i < entityCount; i++)
 	{

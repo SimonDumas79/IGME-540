@@ -11,10 +11,6 @@ cbuffer DataFromCPU : register(b0)
     float totalTime;
 }
 
-float random(float2 s)
-{
-    return frac(sin(dot(s, float2(12.9898, 78.233)))* totalTime * 43758.5453123) ;
-}
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
 // 
@@ -26,6 +22,5 @@ float random(float2 s)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    float4 color = random(input.screenPosition.xy) * colorTint;
-	return color;
+    return colorTint;
 }

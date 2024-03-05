@@ -7,10 +7,15 @@
 
 cbuffer DataFromCPU : register(b0)
 {
+    matrix worldMatrix;
     float4 colorTint;
     float totalTime;
 }
 
+float random(float2 s)
+{
+    return frac(sin(dot(s, float2(12.9898, 78.233))) * totalTime * 43758.5453123);
+}
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
 // 
@@ -22,5 +27,14 @@ cbuffer DataFromCPU : register(b0)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-    return float4(1, 0, 1, 1);
+    float4 color = sin(0.5f * totalTime) * colorTint;
+    input.normal = abs(input.normal) / 2.0f;
+    color += float4(input.normal, 1);
+    
+    if (abs(input.localPosition.x - cos(totalTime)) < 1.7f && abs(input.localPosition.z - sin(totalTime)) < 1.7f)
+    {
+        color *= float4(0.4, 0.4, 0.4, 0);
+    }
+    
+    return color;
 }
