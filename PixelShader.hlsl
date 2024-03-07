@@ -30,6 +30,9 @@ cbuffer DataFromCPU : register(b0)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
+	//input.normal = normalize(input.normal);
+
+
 	float3 color = ambientColor * float3(colorTint.rgb);
-	return float4(color, 1);
+	return float4(input.normal, 1);
 }

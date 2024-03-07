@@ -45,6 +45,7 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::
 	//provide data for vertex shader's cbuffer(s)
 
 	material->GetVertexShader()->SetMatrix4x4("worldMatrix", transform.GetWorldMatrix());
+	material->GetVertexShader()->SetMatrix4x4("worldInvTranspose", transform.GetWorldInverseTransposeMatrix());
 	//vs->SetFloat("totalTime", totalTime);
 
 	//copy data to gpu
