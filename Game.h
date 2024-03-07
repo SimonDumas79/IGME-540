@@ -9,6 +9,7 @@
 #include "SimpleShader.h"
 #include "GameEntity.h"
 #include "Material.h"
+#include "Light.h"
 
 class Game 
 	: public DXCore
@@ -33,6 +34,7 @@ private:
 	void CreateMaterials();
 	void UpdateImGui(float deltaTime);
 	void BuildUi();
+	void CreateLights();
 
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the
@@ -65,6 +67,9 @@ private:
 	std::vector<Material> materials;
 
 	DirectX::XMFLOAT3 ambientColor;
+
+	std::vector<Light> lights;
+
 
 };
 

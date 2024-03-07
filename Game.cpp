@@ -117,6 +117,8 @@ void Game::Init()
 
 	CreateMaterials();
 
+	CreateLights();
+
 	//create game entities
 	CreateGeometry();
 
@@ -224,6 +226,18 @@ void Game::CreateMaterials()
 
 }
 
+void Game::CreateLights()
+{
+	Light light = {};
+	light.color = XMFLOAT3(1, 0, 0);
+	light.direction = XMFLOAT3(0, 1, 1);
+	light.intensity = 1;
+	light.type = 0;
+	lights.push_back(light);
+	
+}
+
+
 // --------------------------------------------------------
 // Creates the geometry we're going to draw - a single triangle for now
 // --------------------------------------------------------
@@ -231,7 +245,7 @@ void Game::CreateGeometry()
 {
 	//clean up empty meshes before reassignment
 	delete[] meshes;
-	meshCount = 11;
+	meshCount = 7;
 	entityCount = meshCount;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
 	delete[] entities;
@@ -390,17 +404,17 @@ void Game::CreateGeometry()
 		meshes[3] = cube;
 	}
 
-	meshes[4] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/sphere.obj").c_str());
-	meshes[5] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cube.obj").c_str());
-	meshes[6] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cylinder.obj").c_str());
-	meshes[7] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/helix.obj").c_str());
-	meshes[8] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad.obj").c_str());
-	meshes[9] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad_double_sided.obj").c_str());
-	meshes[10] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/torus.obj").c_str());
+	meshes[0] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/sphere.obj").c_str());
+	meshes[1] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cube.obj").c_str());
+	meshes[2] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cylinder.obj").c_str());
+	meshes[3] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/helix.obj").c_str());
+	meshes[4] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad.obj").c_str());
+	meshes[5] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad_double_sided.obj").c_str());
+	meshes[6] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/torus.obj").c_str());
 
 	for (unsigned int i = 4; i < meshCount; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[i % (materials.size() - 1) + 1]));
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[0]));
 	}
 
 	for (unsigned int i = 0; i < 4; i++)
@@ -414,8 +428,8 @@ void Game::CreateGeometry()
 		entityPositions[i] = entities[i]->GetTransform()->GetPosition();
 	}
 
-	entities[8]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
-	entities[9]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	//entities[4]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	//entities[5]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
 }
 
 
@@ -492,7 +506,8 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	vs->SetMatrix4x4("viewMatrix", cameras[activeCameraIndex]->GetView());
 	vs->SetMatrix4x4("projectionMatrix", cameras[activeCameraIndex]->GetProjection());
-	
+	ps->SetData("lights", &lights, sizeof(Light) * lights.size());
+	ps->SetInt("numLights", lights.size());
 	//loop through list of entities drawing each
 	for (unsigned int i = 0; i < entityCount; i++)
 	{
