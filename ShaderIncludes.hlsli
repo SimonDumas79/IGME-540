@@ -2,7 +2,6 @@
 #ifndef IncludeOnce
 #define IncludeOnce
 
-#define MAX_SPECULAR_EXPONENT 256.0f
 
 
 struct VertexShaderInput
@@ -50,30 +49,18 @@ float Lambert(float3 normal, float3 lightDirection)
 
 float Phong(float3 normal, float3 lightDirection, float3 viewVector, float specularPower)
 {
-    float3 reflection = reflect(lightDirection, normal);
-    return pow(saturate(dot(viewVector, reflection)), specularPower);
+    if(specularPower >= .05)
+    {
+        float3 reflection = reflect(lightDirection, normal);
+        return pow(saturate(dot(reflection, viewVector)), specularPower);
+    }
+    return 0;
 }
-
-//spot light {
-//get angle from center with max(dot(directionTolight, lightDirection), 0.0f);
-//then raise angle to power of falloff with pow(anglefromcenter, light.spotfalloff);
-//}
-/*
-float3 SpotLight(float3 lightDirection, float3 directionToLight)
+float Attenuate(Light light, float3 worldPos)
 {
-    float angleFromCenter = max(dot(directionToLight, lightDirection), 0.0f);
-    return pow(angleFromCenter, light.spotfalloff);
+    float dist = distance(light.position, worldPos);
+    float att = saturate(1.0f - (dist * dist / (light.range * light.range)));
+    return att * att;
 }
-*/
-float3 PointLight()
-{
-    
-}
-
-float3 DirectionalLight()
-{
-    
-}
-
 
 #endif

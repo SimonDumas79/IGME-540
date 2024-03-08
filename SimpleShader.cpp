@@ -1,8 +1,8 @@
 #include "SimpleShader.h"
 
 // Default error reporting state
-bool ISimpleShader::ReportErrors = false;
-bool ISimpleShader::ReportWarnings = false;
+bool ISimpleShader::ReportErrors = true;
+bool ISimpleShader::ReportWarnings = true;
 
 // To enable error reporting, use either or both 
 // of the following lines somewhere in your program, 

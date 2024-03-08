@@ -53,7 +53,6 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::
 
 	material->GetPixelShader()->SetFloat4("colorTint", material->GetColorTint());
 	material->GetPixelShader()->SetFloat("totalTime", totalTime);
-	material->GetPixelShader()->SetMatrix4x4("worldMatrix", transform.GetWorldMatrix());
 	material->GetPixelShader()->SetFloat3("cameraPos", camera->GetTransform()->GetPosition());
 	material->GetPixelShader()->SetFloat("roughness", material->GetRoughness());
 

@@ -1,5 +1,9 @@
 #include "ShaderIncludes.hlsli"
+
+#define MAX_SPECULAR_EXPONENT 256.0f
+
 #define MAX_LIGHTS 128
+
 #define LIGHT_TYPE_DIR   0
 #define LIGHT_TYPE_POINT 1
 #define LIGHT_TYPE_SPOT  2
@@ -17,15 +21,12 @@ cbuffer DataFromCPU : register(b0)
 	float totalTime;
 	float3 ambientColor;
 	float roughness;
-	float3 padding; //maintain 16 byte partitions
+	Light lights[MAX_LIGHTS];
+    int numLights;
+    float3 padding; //maintain 16 byte partitions
 }
 
-cbuffer DataPerFrame : register(b1)
-{
-	Light lights[MAX_LIGHTS];
-	Light directionalLight;
-	int numLights;
-}
+
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -38,28 +39,44 @@ cbuffer DataPerFrame : register(b1)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	input.normal = normalize(input.normal);
-	float3 color = Lambert(input.normal, normalize(lights[0].direction)) * lights[0].color * lights[0].intensity;
+    input.normal = normalize(input.normal);
+    
+    float specularPower = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
+    float3 viewVector = normalize(cameraPos - input.worldPosition);
+    
+	
+    float3 color = ambientColor * colorTint.xyz;
 
+    float3 lightDirection;
 	for (int i = 0; i < numLights; i++)
 	{
-		switch (lights[i].type)
-		{
-			case LIGHT_TYPE_DIR:
-
-				color = saturate(Lambert(input.normal, normalize(lights[i].direction))) * lights[i].color * lights[i].intensity;
-
-				break;
-
-			case LIGHT_TYPE_POINT:
-
-				break;
-			case LIGHT_TYPE_SPOT:
-
-				break;
-		}
-
+        if (0 == lights[i].type)
+        {
+            lightDirection = normalize(lights[i].direction);
+            color += lights[i].intensity * 
+            (saturate(Lambert(input.normal, lightDirection)) + Phong(input.normal, lightDirection, viewVector, specularPower)) * lights[i].color;
+        }
+        else if (1 == lights[i].type)
+        {
+            lightDirection = normalize(input.worldPosition - lights[i].position);
+            color += lights[i].intensity * Attenuate(lights[i], input.worldPosition) * 
+            (saturate(Lambert(input.normal, lightDirection)) + Phong(input.normal, lightDirection, viewVector, specularPower)) * lights[i].color;
+        }
+        else if (2 == lights[i].type)
+        {
+            //spot light {
+            //get angle from center with max(dot(directionTolight, lightDirection), 0.0f);
+            //then raise angle to power of falloff with pow(anglefromcenter, light.spotfalloff);
+            //}
+            /*
+            float3 SpotLight(float3 lightDirection, float3 directionToLight)
+            {
+                float angleFromCenter = max(dot(directionToLight, lightDirection), 0.0f);
+                return pow(angleFromCenter, light.spotfalloff);
+            }
+            */
+        }
 	}
 
-	return float4(color, 1);
+    return float4(color, 1);
 }

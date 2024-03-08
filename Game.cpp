@@ -42,7 +42,7 @@ Game::Game(HINSTANCE hInstance)
 
 #endif
 	//Giving all variables initial values
-	ambientColor = DirectX::XMFLOAT3(0.0f, 0.1f, 0.25f);
+	ambientColor = DirectX::XMFLOAT3(0.0f, 0.05f, 0.12f);
 	entityCount = 0;
 	activeCameraIndex = 0;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
@@ -149,8 +149,9 @@ void Game::LoadShaders()
 {
 	ps = std::make_shared<SimplePixelShader>(
 		device, context, FixPath(L"PixelShader.cso").c_str());
-	customPixelShader1 = std::make_shared<SimplePixelShader>(
-		device, context, FixPath(L"CustomPixelShader1.cso").c_str());
+
+	//customPixelShader1 = std::make_shared<SimplePixelShader>(device, context, FixPath(L"CustomPixelShader1.cso").c_str());
+
 	vs = std::make_shared<SimpleVertexShader>(
 		device, context, FixPath(L"VertexShader.cso").c_str());
 
@@ -230,11 +231,40 @@ void Game::CreateLights()
 {
 	Light light = {};
 	light.color = XMFLOAT3(1, 0, 0);
-	light.direction = XMFLOAT3(0, 1, 1);
-	light.intensity = 1;
+	light.direction = XMFLOAT3(0, 1, 0);
+	light.intensity = .5f;
 	light.type = 0;
 	lights.push_back(light);
-	
+
+	light = {};
+	light.color = XMFLOAT3(1, 1, 0);
+	light.direction = XMFLOAT3(0, -1, 0);
+	light.intensity = .5f;
+	light.type = 0;
+	lights.push_back(light);
+
+	light = {};
+	light.color = XMFLOAT3(0, 1, 0);
+	light.direction = XMFLOAT3(1, 0, 0);
+	light.intensity = .5f;
+	light.type = 0;
+	lights.push_back(light);
+
+	light = {};
+	light.color = XMFLOAT3(0, 1, 0);
+	light.position = XMFLOAT3(5, 0, 0);
+	light.intensity = .5f;
+	light.range = 5.0f;
+	light.type = 1;
+	lights.push_back(light);
+
+	light = {};
+	light.color = XMFLOAT3(1, 1, 1);
+	light.position = XMFLOAT3(-5, 0, 0);
+	light.intensity = 1.0f;
+	light.range = 10.0f;
+	light.type = 1;
+	lights.push_back(light);
 }
 
 
@@ -270,7 +300,7 @@ void Game::CreateGeometry()
 
 	XMFLOAT3 baseNormal = XMFLOAT3(0, 0, -1);
 	XMFLOAT2 baseUV = XMFLOAT2(0, 0);
-
+	/*
 	//Triangle
 	{
 		Vertex vertices[] =
@@ -403,7 +433,7 @@ void Game::CreateGeometry()
 
 		meshes[3] = cube;
 	}
-
+	*/
 	meshes[0] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/sphere.obj").c_str());
 	meshes[1] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cube.obj").c_str());
 	meshes[2] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/cylinder.obj").c_str());
@@ -411,7 +441,7 @@ void Game::CreateGeometry()
 	meshes[4] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad.obj").c_str());
 	meshes[5] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/quad_double_sided.obj").c_str());
 	meshes[6] = std::make_shared<Mesh>(device, FixPath(L"../../Assets/Models/torus.obj").c_str());
-
+	
 	for (unsigned int i = 4; i < meshCount; i++)
 	{
 		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[0]));
@@ -506,12 +536,12 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	vs->SetMatrix4x4("viewMatrix", cameras[activeCameraIndex]->GetView());
 	vs->SetMatrix4x4("projectionMatrix", cameras[activeCameraIndex]->GetProjection());
-	ps->SetData("lights", &lights, sizeof(Light) * lights.size());
-	ps->SetInt("numLights", lights.size());
 	//loop through list of entities drawing each
 	for (unsigned int i = 0; i < entityCount; i++)
 	{
-		entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientColor);
+		entities[i]->GetMaterial()->GetPixelShader()->SetData("lights", &lights[0], sizeof(Light) * lights.size());
+		entities[i]->GetMaterial()->GetPixelShader()->SetInt("numLights", lights.size());
+		ps->SetFloat3("ambientColor", ambientColor);
 		entities[i]->Draw(context, cameras[activeCameraIndex], totalTime);
 	}
 
@@ -628,6 +658,47 @@ void Game::BuildUi()
 
 				entities[i]->GetTransform()->SetScale(entityScales[i]);
 				ImGui::TreePop();
+			}
+
+		}
+	}
+	if (ImGui::CollapsingHeader("Lights"))
+	{
+		for (unsigned int i = 0; i < lights.size(); i++)
+		{
+
+			switch (lights[i].type)
+			{
+				case 0:
+					if (ImGui::TreeNode(("Directional Light " + std::to_string(i + 1)).c_str()))
+					{
+						ImGui::DragFloat3("Direction", reinterpret_cast<float*>(&lights[i].direction), 0.1f);
+
+						ImGui::DragFloat3("Color", reinterpret_cast<float*>(&lights[i].color), 0.1f);
+
+						ImGui::DragFloat("Intensity", reinterpret_cast<float*>(&lights[i].intensity), 0.1f);
+
+						ImGui::TreePop();
+					}
+					break;
+
+				case 1:
+					if (ImGui::TreeNode(("Point Light " + std::to_string(i + 1)).c_str()))
+					{
+						ImGui::DragFloat3("Position", reinterpret_cast<float*>(&lights[i].position), 0.1f);
+
+						ImGui::DragFloat3("Color", reinterpret_cast<float*>(&lights[i].color), 0.1f);
+
+						ImGui::DragFloat("Intensity", reinterpret_cast<float*>(&lights[i].intensity), 0.1f);
+
+						ImGui::DragFloat("Range", reinterpret_cast<float*>(&lights[i].range), 0.1f);
+
+						ImGui::TreePop();
+					}
+					break;
+
+				case 2:
+					break;
 			}
 
 		}
