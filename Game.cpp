@@ -7,7 +7,7 @@
 #include "ImGui/imgui_impl_win32.h"
 #include "Transform.h"
 #include <iostream>
-
+#include "WICTextureLoader.h"
 
 // Needed for a helper function to load pre-compiled shader files
 #pragma comment(lib, "d3dcompiler.lib")
@@ -218,6 +218,14 @@ void Game::LoadShaders()
 	}
 	*/
 }
+
+
+void Game::CreateTextures()
+{
+	//fixpath needs path to texture
+	//CreateWICTextureFromFile(device.Get(), FixPath(L"").c_str(), 0, textureSRV.GetAddressOf());
+}
+
 
 void Game::CreateMaterials()
 {
