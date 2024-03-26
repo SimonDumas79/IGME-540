@@ -32,6 +32,7 @@ private:
 	void LoadShaders(); 
 	void CreateGeometry();
 	void CreateMaterials();
+	void CreateTextures();
 	void UpdateImGui(float deltaTime);
 	void BuildUi();
 	void CreateLights();

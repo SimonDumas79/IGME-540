@@ -26,7 +26,9 @@ cbuffer DataFromCPU : register(b0)
     float3 padding; //maintain 16 byte partitions
 }
 
+Texture2D SurfaceTexture : register(t0);
 
+SamplerState BasicSampler : register(s0);
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -39,6 +41,8 @@ cbuffer DataFromCPU : register(b0)
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
+    //get color from texture with texture.sample(basicsampler, uv)
+
     input.normal = normalize(input.normal);
     
     float specularPower = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
