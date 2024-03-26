@@ -71,6 +71,28 @@ private:
 
 	std::vector<Light> lights;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSpecularSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> brokenTilesSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> brokenTilesSpecularSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tilesSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tilesSpecularSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNormalSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushionSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushionNormalSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockNormalSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> flatNormals;
+
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+
 
 };
 

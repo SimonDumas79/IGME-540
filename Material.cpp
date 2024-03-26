@@ -47,6 +47,30 @@ std::shared_ptr<SimplePixelShader> Material::GetPixelShader()
     return ps;
 }
 
+void Material::AddTextureSRV(std::string shaderVariableName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
+{
+    textureSRVs.insert({ shaderVariableName, srv });
+}
+
+void Material::AddTextureSpecularSRV(std::string shaderVariableName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
+{
+    textureSpecularSRVs.insert({ shaderVariableName, srv });
+}
+
+void Material::AddSampler(std::string shaderVariableName, Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState)
+{
+    samplers.insert({ shaderVariableName, samplerState });
+}
+
+//bind the srvs and samplers before drawing
+void Material::PrepareMaterial()
+{
+    for (auto& t : textureSRVs) { ps->SetShaderResourceView(t.first.c_str(), t.second); }
+    for (auto& t : textureSpecularSRVs) { ps->SetShaderResourceView(t.first.c_str(), t.second); }
+    for (auto& s : samplers) { ps->SetSamplerState(s.first.c_str(), s.second); }
+}
+
+
 void Material::SetRoughness(float roughness)
 {
     this->roughness = roughness;

@@ -12,4 +12,5 @@ struct Vertex
 	DirectX::XMFLOAT3 position;	    // The local position of the vertex
 	DirectX::XMFLOAT3 normal;
 	DirectX::XMFLOAT2 uv;
+	DirectX::XMFLOAT3 tangent;
 };

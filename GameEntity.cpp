@@ -41,6 +41,7 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::
 
 	material->GetVertexShader()->SetShader();
 	material->GetPixelShader()->SetShader();
+	material->PrepareMaterial();
 
 	//provide data for vertex shader's cbuffer(s)
 

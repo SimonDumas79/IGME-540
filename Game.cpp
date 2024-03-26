@@ -42,7 +42,7 @@ Game::Game(HINSTANCE hInstance)
 
 #endif
 	//Giving all variables initial values
-	ambientColor = DirectX::XMFLOAT3(0.0f, 0.05f, 0.12f);
+	ambientColor = DirectX::XMFLOAT3(0.25f, 0.25f, 0.35f);
 	entityCount = 0;
 	activeCameraIndex = 0;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
@@ -114,6 +114,8 @@ void Game::Init()
 
 	//load shaders into pointers
 	LoadShaders();
+
+	CreateTextures();
 
 	CreateMaterials();
 
@@ -222,37 +224,76 @@ void Game::LoadShaders()
 
 void Game::CreateTextures()
 {
-	//fixpath needs path to texture
-	//CreateWICTextureFromFile(device.Get(), FixPath(L"").c_str(), 0, textureSRV.GetAddressOf());
+	D3D11_SAMPLER_DESC samplerDescription = {};
+	samplerDescription.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescription.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescription.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescription.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDescription.MaxAnisotropy = 8;
+	samplerDescription.MaxLOD = D3D11_FLOAT32_MAX;
+
+	device.Get()->CreateSamplerState(
+		&samplerDescription,
+		&samplerState);
+
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rustymetal.png").c_str(), 0, rustyMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/rustymetal_specular.png").c_str(), 0, rustyMetalSpecularSRV.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/brokentiles.png").c_str(), 0, brokenTilesSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/brokentiles_specular.png").c_str(), 0, brokenTilesSpecularSRV.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/tiles.png").c_str(), 0, tilesSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/tiles_specular.png").c_str(), 0, tilesSpecularSRV.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rustymetal.png").c_str(), 0, cobblestoneSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/rustymetal_specular.png").c_str(), 0, cobblestoneNormalSRV.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/brokentiles.png").c_str(), 0, cushionSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/brokentiles_specular.png").c_str(), 0, cushionNormalSRV.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/tiles.png").c_str(), 0, rockSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/tiles_specular.png").c_str(), 0, rockNormalSRV.GetAddressOf());
+
 }
 
 
 void Game::CreateMaterials()
 {
 	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, ps, 0.5f));
-	materials.push_back(Material(DirectX::XMFLOAT4(0, 1, 0, 1), vs, ps, 1.0f));
-	materials.push_back(Material(DirectX::XMFLOAT4(0, 0, 1, 1), vs, ps, 1.0f));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", rustyMetalSRV);
+	materials[materials.size() - 1].AddTextureSpecularSRV("SurfaceTextureSpecular", rustyMetalSpecularSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, ps, 0.5f));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", brokenTilesSRV);
+	materials[materials.size() - 1].AddTextureSpecularSRV("SurfaceTextureSpecular", brokenTilesSpecularSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, ps, 0.5f));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", tilesSRV);
+	materials[materials.size() - 1].AddTextureSpecularSRV("SurfaceTextureSpecular", tilesSpecularSRV);
 
 }
 
 void Game::CreateLights()
 {
 	Light light = {};
-	light.color = XMFLOAT3(1, 0, 0);
+	light.color = XMFLOAT3(0, 0, 0);
 	light.direction = XMFLOAT3(0, 1, 0);
 	light.intensity = .5f;
 	light.type = 0;
 	lights.push_back(light);
 
 	light = {};
-	light.color = XMFLOAT3(1, 1, 0);
+	light.color = XMFLOAT3(0, 0, 0);
 	light.direction = XMFLOAT3(0, -1, 0);
 	light.intensity = .5f;
 	light.type = 0;
 	lights.push_back(light);
 
 	light = {};
-	light.color = XMFLOAT3(0, 1, 0);
+	light.color = XMFLOAT3(0, 0, 0);
 	light.direction = XMFLOAT3(1, 0, 0);
 	light.intensity = .5f;
 	light.type = 0;
@@ -452,12 +493,12 @@ void Game::CreateGeometry()
 	
 	for (unsigned int i = 4; i < meshCount; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[0]));
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[1]));
 	}
 
 	for (unsigned int i = 0; i < 4; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[0]));
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[2]));
 	}
 
 	for (unsigned int i = 0; i < entityCount; i++)
