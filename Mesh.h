@@ -18,6 +18,8 @@ class Mesh
 
 		void CreateBuffers(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, unsigned int vertexCount, unsigned int* indices);
 
+		void CalculateTangents(Vertex* verts, int numVerts, unsigned int* indices, int numIndices);
+
 	public:
 
 		Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, int vertexCount, unsigned int* indices, int indexCount);
