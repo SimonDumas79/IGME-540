@@ -71,6 +71,15 @@ private:
 
 	std::vector<Light> lights;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSpecularSRV;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> brokenTilesSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> brokenTilesSpecularSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tilesSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tilesSpecularSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 };
 

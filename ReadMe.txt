@@ -1,0 +1,1 @@
+I implemented specular maps as my extra texture related feature.
