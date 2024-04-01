@@ -7,9 +7,11 @@ Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, Vertex* vertices, int ve
 	this->indexCount = indexCount;
 	this->context = context;
 	
+	CalculateTangents(vertices, vertexCount, indices, indexCount);
 	CreateBuffers(device, vertices, vertexCount, &indices[0]);
 	
 }
+
 
 Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, const wchar_t* fileName):
 	indexCount(0)
