@@ -30,6 +30,20 @@ struct VertexToPixel
     float2 uv : TEXCOORD;
 };
 
+struct VertexToPixelWithNormalMap
+{
+	// Data type
+	//  |
+	//  |   Name          Semantic
+	//  |    |                |
+	//  v    v                v
+    float4 screenPosition : SV_POSITION; // XYZW position (System Value Position)
+    float3 worldPosition : POSITION; // XYZ position
+    float3 normal : NORMAL;
+    float2 uv : TEXCOORD;
+    float3 tangent : TANGENT;
+};
+
 struct Light
 {
     int type;
@@ -57,6 +71,7 @@ float Phong(float3 normal, float3 lightDirection, float3 viewVector, float specu
     }
     return 0;
 }
+
 float Attenuate(Light light, float3 worldPos)
 {
     float dist = distance(light.position, worldPos);

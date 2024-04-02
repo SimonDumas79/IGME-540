@@ -151,11 +151,18 @@ void Game::LoadShaders()
 {
 	ps = std::make_shared<SimplePixelShader>(
 		device, context, FixPath(L"PixelShader.cso").c_str());
+	tps = std::make_shared<SimplePixelShader>(
+		device, context, FixPath(L"TexturedPixelShader.cso").c_str());
+	nps = std::make_shared<SimplePixelShader>(
+		device, context, FixPath(L"NormalMapPixelShader.cso").c_str());
 
 	//customPixelShader1 = std::make_shared<SimplePixelShader>(device, context, FixPath(L"CustomPixelShader1.cso").c_str());
 
 	vs = std::make_shared<SimpleVertexShader>(
 		device, context, FixPath(L"VertexShader.cso").c_str());
+
+	nvs = std::make_shared<SimpleVertexShader>(
+		device, context, FixPath(L"NormalMapVertexShader.cso").c_str());
 
 	/*
 	* Creates Shaders manually
@@ -236,6 +243,13 @@ void Game::CreateTextures()
 		&samplerDescription,
 		&samplerState);
 
+	//fully white specular map
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/fully_specular.png").c_str(), 0, fullySpecularSRV.GetAddressOf());
+
+	//flat normal map
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/flat_normal.png").c_str(), 0, flatNormalSRV.GetAddressOf());
+
+
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rustymetal.png").c_str(), 0, rustyMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/rustymetal_specular.png").c_str(), 0, rustyMetalSpecularSRV.GetAddressOf());
 
@@ -245,34 +259,53 @@ void Game::CreateTextures()
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/tiles.png").c_str(), 0, tilesSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/tiles_specular.png").c_str(), 0, tilesSpecularSRV.GetAddressOf());
 
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rustymetal.png").c_str(), 0, cobblestoneSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/rustymetal_specular.png").c_str(), 0, cobblestoneNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/cobblestone.png").c_str(), 0, cobblestoneSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/cobblestone_normals.png").c_str(), 0, cobblestoneNormalSRV.GetAddressOf());
 
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/brokentiles.png").c_str(), 0, cushionSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/brokentiles_specular.png").c_str(), 0, cushionNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/cushion.png").c_str(), 0, cushionSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/cushion_normals.png").c_str(), 0, cushionNormalSRV.GetAddressOf());
 
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/tiles.png").c_str(), 0, rockSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/tiles_specular.png").c_str(), 0, rockNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rock.png").c_str(), 0, rockSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/rock_normals.png").c_str(), 0, rockNormalSRV.GetAddressOf());
+
 
 }
 
 
 void Game::CreateMaterials()
 {
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, ps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", rustyMetalSRV);
-	materials[materials.size() - 1].AddTextureSpecularSRV("SurfaceTextureSpecular", rustyMetalSpecularSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", rustyMetalSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, ps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", brokenTilesSRV);
-	materials[materials.size() - 1].AddTextureSpecularSRV("SurfaceTextureSpecular", brokenTilesSpecularSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", brokenTilesSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, ps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", tilesSRV);
-	materials[materials.size() - 1].AddTextureSpecularSRV("SurfaceTextureSpecular", tilesSpecularSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", tilesSpecularSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", cushionSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", cushionNormalSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", cobblestoneSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", cobblestoneNormalSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", rockSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
+	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", rockNormalSRV);
 
 }
 
@@ -493,12 +526,12 @@ void Game::CreateGeometry()
 	
 	for (unsigned int i = 4; i < meshCount; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[1]));
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[3]));
 	}
 
 	for (unsigned int i = 0; i < 4; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[2]));
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[3]));
 	}
 
 	for (unsigned int i = 0; i < entityCount; i++)
@@ -542,6 +575,7 @@ void Game::Update(float deltaTime, float totalTime)
 	cameras[activeCameraIndex]->UpdateViewMatrix();
 	cameras[activeCameraIndex]->UpdateProjectionMatrix(float(windowWidth) / float(windowHeight));
 	cameras[activeCameraIndex]->Update(deltaTime);
+
 	/*
 		//When using DirectXMath, need to:
 	//1: Load existing data from storage to math types
@@ -583,14 +617,16 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	vs->SetMatrix4x4("viewMatrix", cameras[activeCameraIndex]->GetView());
-	vs->SetMatrix4x4("projectionMatrix", cameras[activeCameraIndex]->GetProjection());
 	//loop through list of entities drawing each
 	for (unsigned int i = 0; i < entityCount; i++)
 	{
+		entities[i]->GetMaterial()->GetVertexShader()->SetMatrix4x4("viewMatrix", cameras[activeCameraIndex]->GetView());
+		entities[i]->GetMaterial()->GetVertexShader()->SetMatrix4x4("projectionMatrix", cameras[activeCameraIndex]->GetProjection());
+
 		entities[i]->GetMaterial()->GetPixelShader()->SetData("lights", &lights[0], sizeof(Light) * lights.size());
 		entities[i]->GetMaterial()->GetPixelShader()->SetInt("numLights", lights.size());
-		ps->SetFloat3("ambientColor", ambientColor);
+		entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientColor);
+
 		entities[i]->Draw(context, cameras[activeCameraIndex], totalTime);
 	}
 

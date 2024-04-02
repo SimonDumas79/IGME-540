@@ -63,13 +63,25 @@ private:
 
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;
-	std::shared_ptr<SimplePixelShader> customPixelShader1;
+
+	//textured pixel shader
+	std::shared_ptr<SimplePixelShader> tps;
+
+	// vertex and pixel shader with normal maps
+	std::shared_ptr<SimpleVertexShader> nvs;
+	std::shared_ptr<SimplePixelShader> nps; 
 
 	std::vector<Material> materials;
 
 	DirectX::XMFLOAT3 ambientColor;
 
 	std::vector<Light> lights;
+
+	//used for textures without a specular map
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fullySpecularSRV;
+
+	//used for textures without a normal map
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> flatNormalSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rustyMetalSpecularSRV;
@@ -88,8 +100,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockNormalSRV;
-
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> flatNormals;
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 

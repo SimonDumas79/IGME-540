@@ -25,13 +25,6 @@ cbuffer DataFromCPU : register(b0)
     int numLights;
     float3 padding; //maintain 16 byte partitions
 }
-
-Texture2D SurfaceTexture : register(t0);
-Texture2D SurfaceTextureSpecular : register(t1);
-Texture2D SurfaceTextureNormal : register(t2);
-
-SamplerState BasicSampler : register(s0);
-
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
 // 
@@ -54,9 +47,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 
     float specularPower = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
     float3 viewVector = normalize(cameraPos - input.worldPosition);
-
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).xyz * colorTint.xyz;
-    float3 color = surfaceColor * ambientColor;
+    
+    float3 surfaceColor = colorTint.xyz * ambientColor;
+    float3 color = surfaceColor;
 
     float3 lightDirection;
 	for (int i = 0; i < numLights; i++)
@@ -66,14 +59,13 @@ float4 main(VertexToPixel input) : SV_TARGET
             lightDirection = normalize(lights[i].direction);
             color += lights[i].intensity * 
             (saturate(Lambert(input.normal, lightDirection)) + 
-            Phong(input.normal, lightDirection, viewVector, specularPower) * SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x) * lights[i].color;
+            Phong(input.normal, lightDirection, viewVector, specularPower)) * lights[i].color * surfaceColor;
         }
         else if (1 == lights[i].type)
         {
             lightDirection = normalize(input.worldPosition - lights[i].position);
             color += lights[i].intensity * Attenuate(lights[i], input.worldPosition) * 
-            (saturate(Lambert(input.normal, lightDirection)) + Phong(input.normal, lightDirection, viewVector, specularPower)
-            * SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x) * lights[i].color;
+            (saturate(Lambert(input.normal, lightDirection)) + Phong(input.normal, lightDirection, viewVector, specularPower)) * lights[i].color * surfaceColor;
         }
         else if (2 == lights[i].type)
         {

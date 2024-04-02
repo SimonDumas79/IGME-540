@@ -52,11 +52,6 @@ void Material::AddTextureSRV(std::string shaderVariableName, Microsoft::WRL::Com
     textureSRVs.insert({ shaderVariableName, srv });
 }
 
-void Material::AddTextureSpecularSRV(std::string shaderVariableName, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
-{
-    textureSpecularSRVs.insert({ shaderVariableName, srv });
-}
-
 void Material::AddSampler(std::string shaderVariableName, Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState)
 {
     samplers.insert({ shaderVariableName, samplerState });
@@ -66,7 +61,6 @@ void Material::AddSampler(std::string shaderVariableName, Microsoft::WRL::ComPtr
 void Material::PrepareMaterial()
 {
     for (auto& t : textureSRVs) { ps->SetShaderResourceView(t.first.c_str(), t.second); }
-    for (auto& t : textureSpecularSRVs) { ps->SetShaderResourceView(t.first.c_str(), t.second); }
     for (auto& s : samplers) { ps->SetSamplerState(s.first.c_str(), s.second); }
 }
 
