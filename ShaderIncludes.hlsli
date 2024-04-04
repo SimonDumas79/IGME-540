@@ -2,8 +2,6 @@
 #ifndef IncludeOnce
 #define IncludeOnce
 
-
-
 struct VertexShaderInput
 {
 	// Data type
