@@ -70,10 +70,12 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
     float specularPower = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
     float3 viewVector = normalize(cameraPos - input.worldPosition);
 
-    float3 surfaceColor = SurfaceTexture.Sample(BasicSampler, input.uv).xyz * colorTint.xyz;
+    float3 surfaceColor = pow(SurfaceTexture.Sample(BasicSampler, input.uv).xyz, 2.2f) * colorTint.xyz;
     float3 color = surfaceColor * ambientColor;
 
     float3 lightDirection;
+
+    float specularFromMap = SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x;
     for (int i = 0; i < numLights; i++)
     {
         if (0 == lights[i].type)
@@ -81,22 +83,22 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
             lightDirection = normalize(lights[i].direction);
             
             float diffuse = Lambert(input.normal, lightDirection);
-            float spec = Phong(input.normal, lightDirection, viewVector, specularPower);
+            float specComponent = Phong(input.normal, lightDirection, viewVector, specularPower);
             
             color += lights[i].intensity *
             (saturate(diffuse) +
-            (spec * any(diffuse)) * SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x) * lights[i].color * surfaceColor;
+            (specComponent * any(diffuse)) * specularFromMap) * lights[i].color * surfaceColor;
         }
         else if (1 == lights[i].type)
         {
             lightDirection = normalize(input.worldPosition - lights[i].position);
             
             float diffuse = Lambert(input.normal, lightDirection);
-            float spec = Phong(input.normal, lightDirection, viewVector, specularPower);
+            float specComponent = Phong(input.normal, lightDirection, viewVector, specularPower);
             
             color += lights[i].intensity * Attenuate(lights[i], input.worldPosition) *
-            (saturate(diffuse) + (spec * any(diffuse))
-            * SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x) * lights[i].color * surfaceColor;
+            (saturate(diffuse) + (specComponent * any(diffuse))
+            * specularFromMap) * lights[i].color * surfaceColor;
         }
         else if (2 == lights[i].type)
         {
@@ -113,6 +115,8 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
             */
         }
     }
+
+    color = pow(color, 1.0f / 2.2f);
 
     return float4(color, 1);
 }
