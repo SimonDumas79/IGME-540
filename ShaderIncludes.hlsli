@@ -2,6 +2,9 @@
 #ifndef IncludeOnce
 #define IncludeOnce
 
+#define MIN_ROUGHNESS 0.0000001
+#define PI 3.1415
+
 struct VertexShaderInput
 {
 	// Data type
@@ -75,6 +78,18 @@ float Attenuate(Light light, float3 worldPos)
     float dist = distance(light.position, worldPos);
     float att = saturate(1.0f - (dist * dist / (light.range * light.range)));
     return att * att;
+}
+
+float D_GGX(float3 n, float3 h, float roughness)
+{
+    float NdotH = saturate(dot(n, h));
+    float NdotH2 = NdotH * NdotH;
+    float a = roughness * roughness;
+    float a2 = max(a * a, MIN_ROUGHNESS);
+    
+    float denomToSquare = NdotH2 * (a2 - 1) + 1;
+    
+    return a2 / (PI * denomToSquare * denomToSquare);
 }
 
 #endif
