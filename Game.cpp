@@ -312,34 +312,34 @@ void Game::CreateTextures()
 
 void Game::CreateMaterials()
 {
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false, true));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", rustyMetalSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", rustyMetalSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false, true));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", brokenTilesSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", brokenTilesSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false, true));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", tilesSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", tilesSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, true, true));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", cushionSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", cushionNormalSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, true, true));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", cobblestoneSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", cobblestoneNormalSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, true, true));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", rockSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);

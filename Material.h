@@ -13,7 +13,9 @@ public:
 	Material(DirectX::XMFLOAT4 colorTint, 
 		std::shared_ptr<SimpleVertexShader> vertexShader, 
 		std::shared_ptr<SimplePixelShader> pixelShader,
-		float roughness);
+		float roughness,
+		bool usingSpecular,
+		bool usingNormal);
 
 	~Material();
 
@@ -36,10 +38,16 @@ public:
 	void SetRoughness(float roughness);
 	float GetRoughness();
 
+	bool GetUsingNormal();
+	bool GetUsingSpec();
+
 private:
 
 	DirectX::XMFLOAT4 colorTint;
 	float roughness;
+
+	bool usingSpecular;
+	bool usingNormal;
 
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;

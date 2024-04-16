@@ -168,7 +168,7 @@
     <FxCompile Include="SkyPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PBRNormalMapPixelShader.hlsl">
+    <FxCompile Include="PBRPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

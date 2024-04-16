@@ -23,7 +23,9 @@ cbuffer DataFromCPU : register(b0)
     float roughness;
     Light lights[MAX_LIGHTS];
     int numLights;
-    float3 padding; //maintain 16 byte partitions
+    bool usingSpecular;
+    bool usingNormal;
+    float padding;
 }
 
 Texture2D SurfaceTexture : register(t0);
@@ -47,25 +49,31 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
 
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
-    float3 unpackedNormal = SurfaceTextureNormal.Sample(BasicSampler, input.uv).xyz * 2 - 1;
-    unpackedNormal = normalize(unpackedNormal);
+   
 
-    //normal
-    float3 N = input.normal;
-    //tangent
-    float3 T = input.tangent;
-    T = normalize(T - N * dot(T, N));
-    //bitangent
-    float3 B = cross(T, N);
 
-    //rotation matrix for normal from normal map
-    float3x3 TBN = float3x3(T, B, N);
+    if (usingNormal)
+    { 
+        float3 unpackedNormal = SurfaceTextureNormal.Sample(BasicSampler, input.uv).xyz * 2 - 1;
+        unpackedNormal = normalize(unpackedNormal);
+        //normal
+        float3 N = input.normal;
+        //tangent
+        float3 T = input.tangent;
+        T = normalize(T - N * dot(T, N));
+        //bitangent
+        float3 B = cross(T, N);
 
-    input.normal = mul(unpackedNormal, TBN);
-    //get normal from map, normalize and unpack. 
-    // T = normalize(input.tangent - N * dot(input.tangent, N))
-    //get rotation matrix of the Normal, tangent, and bitangent using matrix of T, B, N
-    //rotate the input.normal by multiplying by the tbn
+        //rotation matrix for normal from normal map
+        float3x3 TBN = float3x3(T, B, N);
+
+        input.normal = mul(unpackedNormal, TBN);
+        //get normal from map, normalize and unpack. 
+        // T = normalize(input.tangent - N * dot(input.tangent, N))
+        //get rotation matrix of the Normal, tangent, and bitangent using matrix of T, B, N
+        //rotate the input.normal by multiplying by the tbn
+    }
+    
 
     float specularPower = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
     float3 viewVector = normalize(cameraPos - input.worldPosition);
@@ -74,8 +82,15 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
     float3 color = surfaceColor * ambientColor;
 
     float3 lightDirection;
-
-    float specularFromMap = SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x;
+    float specularFromMap;
+    if (usingSpecular)
+    {
+        specularFromMap = SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x;
+    }
+    else
+    {
+        specularFromMap = 1;
+    }
     for (int i = 0; i < numLights; i++)
     {
         if (0 == lights[i].type)
