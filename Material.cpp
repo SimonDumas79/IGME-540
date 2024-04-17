@@ -3,11 +3,15 @@
 Material::Material(DirectX::XMFLOAT4 colorTint, 
     std::shared_ptr<SimpleVertexShader> vertexShader, 
     std::shared_ptr<SimplePixelShader> pixelShader,
-    float roughness) :
+    float roughness,
+    bool usingSpecular,
+    bool usingNormal) :
     colorTint(colorTint),
     vs(vertexShader),
     ps(pixelShader),
-    roughness(roughness)
+    roughness(roughness),
+    usingSpecular(usingSpecular),
+    usingNormal(usingNormal)
 {
 }
 
@@ -73,4 +77,14 @@ void Material::SetRoughness(float roughness)
 float Material::GetRoughness()
 {
     return roughness;
+}
+
+bool Material::GetUsingNormal()
+{
+    return false;
+}
+
+bool Material::GetUsingSpec()
+{
+    return false;
 }
