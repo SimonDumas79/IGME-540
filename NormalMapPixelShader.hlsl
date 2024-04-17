@@ -44,7 +44,7 @@ SamplerState BasicSampler : register(s0);
 float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
 {
     //get color from texture with texture.sample(basicsampler, uv)
-
+    
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     float3 unpackedNormal = SurfaceTextureNormal.Sample(BasicSampler, input.uv).xyz * 2 - 1;

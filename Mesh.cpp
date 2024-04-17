@@ -214,21 +214,9 @@ Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device> device, const wchar_t* fileName)
 
 	indexCount = indexCounter;
 
-	//create vertex pointer and copy the vertex list onto it
-	Vertex* verticesPtr = new Vertex[verts.size()];
-	std::copy(verts.begin(), verts.end(), verticesPtr);
-
-	//create index pointer and copy the index list onto it
-	UINT* indicesPtr = new UINT[indices.size()];
-	std::copy(indices.begin(), indices.end(), indicesPtr);
-
-	CalculateTangents(verticesPtr, verts.size(), indicesPtr, indexCount);
+	CalculateTangents(&verts[0], verts.size(), &indices[0], indexCount);
 	CreateBuffers(device, &verts[0], vertCounter, &indices[0]);
 
-	delete[] verticesPtr;
-	delete[] indicesPtr;
-	verticesPtr = nullptr;
-	indicesPtr = nullptr;
 }
 
 

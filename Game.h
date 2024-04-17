@@ -10,6 +10,7 @@
 #include "GameEntity.h"
 #include "Material.h"
 #include "Light.h"
+#include "Sky.h"
 
 class Game 
 	: public DXCore
@@ -36,6 +37,15 @@ private:
 	void UpdateImGui(float deltaTime);
 	void BuildUi();
 	void CreateLights();
+	// Helper for creating a cubemap from 6 individual textures
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
+		const wchar_t* right,
+		const wchar_t* left,
+		const wchar_t* up,
+		const wchar_t* down,
+		const wchar_t* front,
+		const wchar_t* back);
+
 
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the
@@ -71,6 +81,10 @@ private:
 	std::shared_ptr<SimpleVertexShader> nvs;
 	std::shared_ptr<SimplePixelShader> nps; 
 
+	//sky vertex and pixel shaders
+	std::shared_ptr<SimpleVertexShader> skyVS;
+	std::shared_ptr<SimplePixelShader> skyPS;
+
 	std::vector<Material> materials;
 
 	DirectX::XMFLOAT3 ambientColor;
@@ -103,6 +117,14 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
+	//Skies
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cloudsBlueSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cloudsPinkSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> coldSunsetSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> planetSRV;
+
+
+	std::shared_ptr<Sky> sky;
 
 };
 

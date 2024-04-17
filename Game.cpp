@@ -42,7 +42,7 @@ Game::Game(HINSTANCE hInstance)
 
 #endif
 	//Giving all variables initial values
-	ambientColor = DirectX::XMFLOAT3(0.25f, 0.25f, 0.35f);
+	ambientColor = DirectX::XMFLOAT3(0.25f, 0.25f, 0.45f);
 	entityCount = 0;
 	activeCameraIndex = 0;
 	meshes = new std::shared_ptr<Mesh>[entityCount];
@@ -156,6 +156,8 @@ void Game::LoadShaders()
 	nps = std::make_shared<SimplePixelShader>(
 		device, context, FixPath(L"NormalMapPixelShader.cso").c_str());
 
+	skyPS = std::make_shared<SimplePixelShader>(
+		device, context, FixPath(L"SkyPixelShader.cso").c_str());
 	//customPixelShader1 = std::make_shared<SimplePixelShader>(device, context, FixPath(L"CustomPixelShader1.cso").c_str());
 
 	vs = std::make_shared<SimpleVertexShader>(
@@ -163,6 +165,11 @@ void Game::LoadShaders()
 
 	nvs = std::make_shared<SimpleVertexShader>(
 		device, context, FixPath(L"NormalMapVertexShader.cso").c_str());
+
+	skyVS = std::make_shared<SimpleVertexShader>(
+		device, context, FixPath(L"SkyVertexShader.cso").c_str());
+
+
 
 	/*
 	* Creates Shaders manually
@@ -268,6 +275,37 @@ void Game::CreateTextures()
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rock.png").c_str(), 0, rockSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/rock_normals.png").c_str(), 0, rockNormalSRV.GetAddressOf());
 
+	cloudsBlueSRV = CreateCubemap(
+		FixPath(L"../../Assets/Skies/Clouds_Blue/right.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Blue/left.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Blue/up.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Blue/down.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Blue/front.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Blue/back.png").c_str());
+
+	cloudsPinkSRV = CreateCubemap(
+		FixPath(L"../../Assets/Skies/Clouds_Pink/right.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Pink/left.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Pink/up.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Pink/down.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Pink/front.png").c_str(),
+		FixPath(L"../../Assets/Skies/Clouds_Pink/back.png").c_str());
+
+	coldSunsetSRV = CreateCubemap(
+		FixPath(L"../../Assets/Skies/Cold_Sunset/right.png").c_str(),
+		FixPath(L"../../Assets/Skies/Cold_Sunset/left.png").c_str(),
+		FixPath(L"../../Assets/Skies/Cold_Sunset/up.png").c_str(),
+		FixPath(L"../../Assets/Skies/Cold_Sunset/down.png").c_str(),
+		FixPath(L"../../Assets/Skies/Cold_Sunset/front.png").c_str(),
+		FixPath(L"../../Assets/Skies/Cold_Sunset/back.png").c_str());
+
+	planetSRV = CreateCubemap(
+		FixPath(L"../../Assets/Skies/Planet/right.png").c_str(),
+		FixPath(L"../../Assets/Skies/Planet/left.png").c_str(),
+		FixPath(L"../../Assets/Skies/Planet/up.png").c_str(),
+		FixPath(L"../../Assets/Skies/Planet/down.png").c_str(),
+		FixPath(L"../../Assets/Skies/Planet/front.png").c_str(),
+		FixPath(L"../../Assets/Skies/Planet/back.png").c_str());
 
 }
 
@@ -540,8 +578,10 @@ void Game::CreateGeometry()
 		entityPositions[i] = entities[i]->GetTransform()->GetPosition();
 	}
 
-	//entities[4]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
-	//entities[5]->GetTransform()->SetRotation(DirectX::XMFLOAT3(-DirectX::XM_PIDIV2, 0.0f, 0.0f));
+	//create Skybox
+	sky = std::make_shared<Sky>(meshes[1], samplerState, device, skyVS, skyPS);
+	sky->SetShaderResourceView(cloudsBlueSRV);
+
 }
 
 
@@ -629,7 +669,8 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		entities[i]->Draw(context, cameras[activeCameraIndex], totalTime);
 	}
-
+	
+	sky->Draw(context, cameras[activeCameraIndex]);
 
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
@@ -820,4 +861,99 @@ void Game::BuildUi()
 			cameras[activeCameraIndex]->GetTransform()->GetForwardVector().y, cameras[activeCameraIndex]->GetTransform()->GetForwardVector().z);
 	}
 	ImGui::End();
+}
+
+// --------------------------------------------------------
+// Author: Chris Cascioli
+// Purpose: Creates a cube map on the GPU from 6 individual textures
+// 
+// - You are allowed to directly copy/paste this into your code base
+//   for assignments, given that you clearly cite that this is not
+//   code of your own design.
+//
+// - Note: This code assumes you’re putting the function in Sky.cpp, 
+//   you’ve included WICTextureLoader.h and you have an ID3D11Device 
+//   ComPtr called “device”.  Make any adjustments necessary for
+//   your own implementation.
+// --------------------------------------------------------
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Game::CreateCubemap(
+	const wchar_t* right,
+	const wchar_t* left,
+	const wchar_t* up,
+	const wchar_t* down,
+	const wchar_t* front,
+	const wchar_t* back)
+{
+	// Load the 6 textures into an array.
+	// - We need references to the TEXTURES, not SHADER RESOURCE VIEWS!
+	// - Explicitly NOT generating mipmaps, as we don't need them for the sky!
+	// - Order matters here!  +X, -X, +Y, -Y, +Z, -Z
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> textures[6] = {};
+	CreateWICTextureFromFile(device.Get(), right, (ID3D11Resource**)textures[0].GetAddressOf(), 0);
+	CreateWICTextureFromFile(device.Get(), left, (ID3D11Resource**)textures[1].GetAddressOf(), 0);
+	CreateWICTextureFromFile(device.Get(), up, (ID3D11Resource**)textures[2].GetAddressOf(), 0);
+	CreateWICTextureFromFile(device.Get(), down, (ID3D11Resource**)textures[3].GetAddressOf(), 0);
+	CreateWICTextureFromFile(device.Get(), front, (ID3D11Resource**)textures[4].GetAddressOf(), 0);
+	CreateWICTextureFromFile(device.Get(), back, (ID3D11Resource**)textures[5].GetAddressOf(), 0);
+
+	// We'll assume all of the textures are the same color format and resolution,
+	// so get the description of the first texture
+	D3D11_TEXTURE2D_DESC faceDesc = {};
+	textures[0]->GetDesc(&faceDesc);
+
+	// Describe the resource for the cube map, which is simply 
+	// a "texture 2d array" with the TEXTURECUBE flag set.  
+	// This is a special GPU resource format, NOT just a 
+	// C++ array of textures!!!
+	D3D11_TEXTURE2D_DESC cubeDesc = {};
+	cubeDesc.ArraySize = 6;            // Cube map!
+	cubeDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE; // We'll be using as a texture in a shader
+	cubeDesc.CPUAccessFlags = 0;       // No read back
+	cubeDesc.Format = faceDesc.Format; // Match the loaded texture's color format
+	cubeDesc.Width = faceDesc.Width;   // Match the size
+	cubeDesc.Height = faceDesc.Height; // Match the size
+	cubeDesc.MipLevels = 1;            // Only need 1
+	cubeDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE; // This should be treated as a CUBE, not 6 separate textures
+	cubeDesc.Usage = D3D11_USAGE_DEFAULT; // Standard usage
+	cubeDesc.SampleDesc.Count = 1;
+	cubeDesc.SampleDesc.Quality = 0;
+
+	// Create the final texture resource to hold the cube map
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> cubeMapTexture;
+	device->CreateTexture2D(&cubeDesc, 0, cubeMapTexture.GetAddressOf());
+
+	// Loop through the individual face textures and copy them,
+	// one at a time, to the cube map texure
+	for (int i = 0; i < 6; i++)
+	{
+		// Calculate the subresource position to copy into
+		unsigned int subresource = D3D11CalcSubresource(
+			0,  // Which mip (zero, since there's only one)
+			i,  // Which array element?
+			1); // How many mip levels are in the texture?
+
+		// Copy from one resource (texture) to another
+		context->CopySubresourceRegion(
+			cubeMapTexture.Get(),  // Destination resource
+			subresource,           // Dest subresource index (one of the array elements)
+			0, 0, 0,               // XYZ location of copy
+			textures[i].Get(),     // Source resource
+			0,                     // Source subresource index (we're assuming there's only one)
+			0);                    // Source subresource "box" of data to copy (zero means the whole thing)
+	}
+
+	// At this point, all of the faces have been copied into the 
+	// cube map texture, so we can describe a shader resource view for it
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = cubeDesc.Format;         // Same format as texture
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE; // Treat this as a cube!
+	srvDesc.TextureCube.MipLevels = 1;        // Only need access to 1 mip
+	srvDesc.TextureCube.MostDetailedMip = 0;  // Index of the first mip we want to see
+
+	// Make the SRV
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cubeSRV;
+	device->CreateShaderResourceView(cubeMapTexture.Get(), &srvDesc, cubeSRV.GetAddressOf());
+
+	// Send back the SRV, which is what we need for our shaders
+	return cubeSRV;
 }
