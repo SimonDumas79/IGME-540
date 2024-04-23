@@ -19,18 +19,15 @@ cbuffer DataFromCPU : register(b0)
     float4 colorTint;
     float3 cameraPos;
     float totalTime;
-    float3 ambientColor;
-    float roughness;
     Light lights[MAX_LIGHTS];
     int numLights;
-    bool usingSpecular;
-    bool usingNormal;
-    float padding;
+    float3 padding;
 }
 
-Texture2D SurfaceTexture : register(t0);
-Texture2D SurfaceTextureSpecular : register(t1);
-Texture2D SurfaceTextureNormal : register(t2);
+Texture2D Albedo : register(t0);
+Texture2D NormalMap : register(t1);
+Texture2D RoughnessMap : register(t2);
+Texture2D MetalnessMap : register(t3);
 
 SamplerState BasicSampler : register(s0);
 
@@ -51,69 +48,70 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
     input.tangent = normalize(input.tangent);
    
 
-
-    if (usingNormal)
-    { 
-        float3 unpackedNormal = SurfaceTextureNormal.Sample(BasicSampler, input.uv).xyz * 2 - 1;
-        unpackedNormal = normalize(unpackedNormal);
-        //normal
-        float3 N = input.normal;
-        //tangent
-        float3 T = input.tangent;
-        T = normalize(T - N * dot(T, N));
-        //bitangent
-        float3 B = cross(T, N);
-
-        //rotation matrix for normal from normal map
-        float3x3 TBN = float3x3(T, B, N);
-
-        input.normal = mul(unpackedNormal, TBN);
-        //get normal from map, normalize and unpack. 
-        // T = normalize(input.tangent - N * dot(input.tangent, N))
-        //get rotation matrix of the Normal, tangent, and bitangent using matrix of T, B, N
-        //rotate the input.normal by multiplying by the tbn
-    }
     
+    float3 unpackedNormal = NormalMap.Sample(BasicSampler, input.uv).xyz * 2 - 1;
+    unpackedNormal = normalize(unpackedNormal);
+    //normal
+    float3 N = input.normal;
+    //tangent
+    float3 T = input.tangent;
+    T = normalize(T - N * dot(T, N));
+    //bitangent
+    float3 B = cross(T, N);
 
-    float specularPower = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
+    //rotation matrix for normal from normal map
+    float3x3 TBN = float3x3(T, B, N);
+
+    input.normal = mul(unpackedNormal, TBN);
+    
+    float roughness = RoughnessMap.Sample(BasicSampler, input.uv).x;
+    float metalness = MetalnessMap.Sample(BasicSampler, input.uv).x;
+    float3 surfaceColor = pow(Albedo.Sample(BasicSampler, input.uv).xyz, 2.2f) * colorTint.xyz;
+    float3 specularColor = lerp(F0_NON_METAL, surfaceColor, metalness);
+    
+    
     float3 viewVector = normalize(cameraPos - input.worldPosition);
 
-    float3 surfaceColor = pow(SurfaceTexture.Sample(BasicSampler, input.uv).xyz, 2.2f) * colorTint.xyz;
-    float3 color = surfaceColor * ambientColor;
+    float3 color;
 
     float3 lightDirection;
-    float specularFromMap;
-    if (usingSpecular)
-    {
-        specularFromMap = SurfaceTextureSpecular.Sample(BasicSampler, input.uv).x;
-    }
-    else
-    {
-        specularFromMap = 1;
-    }
     for (int i = 0; i < numLights; i++)
     {
         if (0 == lights[i].type)
         {
             lightDirection = normalize(lights[i].direction);
 
-            float diffuse = Lambert(input.normal, lightDirection);
-            float specComponent = Phong(input.normal, lightDirection, viewVector, specularPower);
-
-            color += lights[i].intensity *
-            (saturate(diffuse) +
-            (specComponent * any(diffuse)) * specularFromMap) * lights[i].color * surfaceColor;
+            float diffuse = DiffusePBR(input.normal, -lightDirection);
+            float3 F;
+            float3 specComponent = MicrofacetBRDF(input.normal, -lightDirection, viewVector, roughness, specularColor, F);
+            
+            // Calculate diffuse with energy conservation, including cutting diffuse for metals
+            float3 balancedDiffuse = DiffuseEnergyConserve(diffuse, F, metalness);
+            
+            // correct for normals from normal maps picking up spec on opposite side
+            specComponent *= any(diffuse);
+            
+            float3 total = (balancedDiffuse * surfaceColor + specComponent) * lights[i].intensity * lights[i].color;
+            
+            color += total;
         }
         else if (1 == lights[i].type)
         {
             lightDirection = normalize(input.worldPosition - lights[i].position);
 
-            float diffuse = Lambert(input.normal, lightDirection);
-            float specComponent = Phong(input.normal, lightDirection, viewVector, specularPower);
-
-            color += lights[i].intensity * Attenuate(lights[i], input.worldPosition) *
-            (saturate(diffuse) + (specComponent * any(diffuse))
-            * specularFromMap) * lights[i].color * surfaceColor;
+            float diffuse = DiffusePBR(input.normal, -lightDirection);
+            float3 F;
+            float3 specComponent = MicrofacetBRDF(input.normal, -lightDirection, viewVector, roughness, specularColor, F);
+            
+            // Calculate diffuse with energy conservation, including cutting diffuse for metals
+            float3 balancedDiffuse = DiffuseEnergyConserve(diffuse, F, metalness);
+            
+            // correct for normals from normal maps picking up spec on opposite side
+            specComponent *= any(diffuse);
+            
+            float3 total = (balancedDiffuse * surfaceColor + specComponent) * lights[i].intensity * lights[i].color * Attenuate(lights[i], input.worldPosition);
+            
+            color += total;
         }
         else if (2 == lights[i].type)
         {

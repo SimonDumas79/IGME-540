@@ -169,7 +169,8 @@ void Game::LoadShaders()
 	skyVS = std::make_shared<SimpleVertexShader>(
 		device, context, FixPath(L"SkyVertexShader.cso").c_str());
 
-
+	PBRps = std::make_shared<SimplePixelShader>(
+		device, context, FixPath(L"PBRPixelShader.cso").c_str());
 
 	/*
 	* Creates Shaders manually
@@ -256,24 +257,70 @@ void Game::CreateTextures()
 	//flat normal map
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/flat_normal.png").c_str(), 0, flatNormalSRV.GetAddressOf());
 
-
+	//rusty metal
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rustymetal.png").c_str(), 0, rustyMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/rustymetal_specular.png").c_str(), 0, rustyMetalSpecularSRV.GetAddressOf());
 
+	//broken tiles
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/brokentiles.png").c_str(), 0, brokenTilesSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/brokentiles_specular.png").c_str(), 0, brokenTilesSpecularSRV.GetAddressOf());
 
+	//tiles
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/tiles.png").c_str(), 0, tilesSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Specular_Maps/tiles_specular.png").c_str(), 0, tilesSpecularSRV.GetAddressOf());
 
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/cobblestone.png").c_str(), 0, cobblestoneSRV.GetAddressOf());
-	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/cobblestone_normals.png").c_str(), 0, cobblestoneNormalSRV.GetAddressOf());
-
+	//cushion
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/cushion.png").c_str(), 0, cushionSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/cushion_normals.png").c_str(), 0, cushionNormalSRV.GetAddressOf());
 
+	//rock
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Textures/rock.png").c_str(), 0, rockSRV.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/Normal_Maps/rock_normals.png").c_str(), 0, rockNormalSRV.GetAddressOf());
+
+	//cobblestone
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Albedo/cobblestone_albedo.png").c_str(), 0, cobblestoneSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Metal/cobblestone_metal.png").c_str(), 0, cobblestoneMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Normal/cobblestone_normals.png").c_str(), 0, cobblestoneNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Roughness/cobblestone_roughness.png").c_str(), 0, cobblestoneRoughnessSRV.GetAddressOf());
+
+	//bronze
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Albedo/bronze_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Metal/bronze_metal.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Normal/bronze_normals.png").c_str(), 0, bronzeNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Roughness/bronze_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
+
+	//floor
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Albedo/floor_albedo.png").c_str(), 0, floorSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Metal/floor_metal.png").c_str(), 0, floorMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Normal/floor_normals.png").c_str(), 0, floorNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Roughness/floor_roughness.png").c_str(), 0, floorRoughnessSRV.GetAddressOf());
+
+	//paint
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Albedo/paint_albedo.png").c_str(), 0, paintSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Metal/paint_metal.png").c_str(), 0, paintMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Normal/paint_normals.png").c_str(), 0, paintNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Roughness/paint_roughness.png").c_str(), 0, paintRoughnessSRV.GetAddressOf());
+
+	//rough
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Albedo/rough_albedo.png").c_str(), 0, roughSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Metal/rough_metal.png").c_str(), 0, roughMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Normal/rough_normals.png").c_str(), 0, roughNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Roughness/rough_roughness.png").c_str(), 0, roughRoughnessSRV.GetAddressOf());
+
+	//scratched
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Albedo/scratched_albedo.png").c_str(), 0, scratchedSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Metal/scratched_metal.png").c_str(), 0, scratchedMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Normal/scratched_normals.png").c_str(), 0, scratchedNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Roughness/scratched_roughness.png").c_str(), 0, scratchedRoughnessSRV.GetAddressOf());
+
+	//wood
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Albedo/wood_albedo.png").c_str(), 0, woodSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Metal/wood_metal.png").c_str(), 0, woodMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Normal/wood_normals.png").c_str(), 0, woodNormalSRV.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), FixPath(L"../../Assets/PBR/Roughness/wood_roughness.png").c_str(), 0, woodRoughnessSRV.GetAddressOf());
+
+
+
 
 	cloudsBlueSRV = CreateCubemap(
 		FixPath(L"../../Assets/Skies/Clouds_Blue/right.png").c_str(),
@@ -312,39 +359,82 @@ void Game::CreateTextures()
 
 void Game::CreateMaterials()
 {
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false, true));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", rustyMetalSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", rustyMetalSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false, true));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", brokenTilesSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", brokenTilesSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false, true));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), vs, tps, 0.5f, false));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", tilesSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", tilesSpecularSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, true, true));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, false));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", cushionSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", cushionNormalSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, true, true));
-	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
-	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", cobblestoneSRV);
-	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
-	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", cobblestoneNormalSRV);
 
-	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, true, true));
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, nps, 0.5f, false));
 	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTexture", rockSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureSpecular", fullySpecularSRV);
 	materials[materials.size() - 1].AddTextureSRV("SurfaceTextureNormal", rockNormalSRV);
 
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, PBRps, 0.5f, true));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("Albedo", cobblestoneSRV);
+	materials[materials.size() - 1].AddTextureSRV("MetalnessMap", cobblestoneMetalSRV);
+	materials[materials.size() - 1].AddTextureSRV("NormalMap", cobblestoneNormalSRV);
+	materials[materials.size() - 1].AddTextureSRV("RoughnessMap", cobblestoneRoughnessSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, PBRps, 0.5f, true));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("Albedo", bronzeSRV);
+	materials[materials.size() - 1].AddTextureSRV("MetalnessMap", bronzeMetalSRV);
+	materials[materials.size() - 1].AddTextureSRV("NormalMap", bronzeNormalSRV);
+	materials[materials.size() - 1].AddTextureSRV("RoughnessMap", bronzeRoughnessSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, PBRps, 0.5f, true));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("Albedo", floorSRV);
+	materials[materials.size() - 1].AddTextureSRV("MetalnessMap", floorMetalSRV);
+	materials[materials.size() - 1].AddTextureSRV("NormalMap", floorNormalSRV);
+	materials[materials.size() - 1].AddTextureSRV("RoughnessMap", floorRoughnessSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, PBRps, 0.5f, true));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("Albedo", paintSRV);
+	materials[materials.size() - 1].AddTextureSRV("MetalnessMap", paintMetalSRV);
+	materials[materials.size() - 1].AddTextureSRV("NormalMap", paintNormalSRV);
+	materials[materials.size() - 1].AddTextureSRV("RoughnessMap", paintRoughnessSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, PBRps, 0.5f, true));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("Albedo", roughSRV);
+	materials[materials.size() - 1].AddTextureSRV("MetalnessMap", roughMetalSRV);
+	materials[materials.size() - 1].AddTextureSRV("NormalMap", roughNormalSRV);
+	materials[materials.size() - 1].AddTextureSRV("RoughnessMap", roughRoughnessSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, PBRps, 0.5f, true));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("Albedo", scratchedSRV);
+	materials[materials.size() - 1].AddTextureSRV("MetalnessMap", scratchedMetalSRV);
+	materials[materials.size() - 1].AddTextureSRV("NormalMap", scratchedNormalSRV);
+	materials[materials.size() - 1].AddTextureSRV("RoughnessMap", scratchedRoughnessSRV);
+
+	materials.push_back(Material(DirectX::XMFLOAT4(1, 1, 1, 1), nvs, PBRps, 0.5f, true));
+	materials[materials.size() - 1].AddSampler("BasicSampler", samplerState);
+	materials[materials.size() - 1].AddTextureSRV("Albedo", woodSRV);
+	materials[materials.size() - 1].AddTextureSRV("MetalnessMap", woodMetalSRV);
+	materials[materials.size() - 1].AddTextureSRV("NormalMap", woodNormalSRV);
+	materials[materials.size() - 1].AddTextureSRV("RoughnessMap", woodRoughnessSRV);
 }
 
 void Game::CreateLights()
@@ -569,7 +659,7 @@ void Game::CreateGeometry()
 
 	for (unsigned int i = 0; i < 4; i++)
 	{
-		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[3]));
+		entities[i] = std::make_shared<GameEntity>(meshes[i], std::make_shared<Material>(materials[5 + i]));
 	}
 
 	for (unsigned int i = 0; i < entityCount; i++)
@@ -665,7 +755,10 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		entities[i]->GetMaterial()->GetPixelShader()->SetData("lights", &lights[0], sizeof(Light) * lights.size());
 		entities[i]->GetMaterial()->GetPixelShader()->SetInt("numLights", lights.size());
-		entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientColor);
+		if (!entities[i]->GetMaterial()->GetPBR())
+		{
+			entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientColor);
+		}
 
 		entities[i]->Draw(context, cameras[activeCameraIndex], totalTime);
 	}

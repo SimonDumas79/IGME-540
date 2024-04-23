@@ -74,6 +74,8 @@ private:
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;
 
+	std::shared_ptr<SimplePixelShader> PBRps;
+
 	//textured pixel shader
 	std::shared_ptr<SimplePixelShader> tps;
 
@@ -106,14 +108,46 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tilesSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> tilesSpecularSRV;
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNormalSRV;
-
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushionSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cushionNormalSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockNormalSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneRoughnessSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeRoughnessSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> floorRoughnessSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintRoughnessSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roughSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roughMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roughNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roughRoughnessSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedRoughnessSRV;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodNormalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodRoughnessSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 

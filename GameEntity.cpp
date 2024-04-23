@@ -52,10 +52,15 @@ void GameEntity::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context, std::
 	//copy data to gpu
 	material->GetVertexShader()->CopyAllBufferData();
 
+	if (!material->GetPBR())
+	{
+		material->GetPixelShader()->SetFloat("roughness", material->GetRoughness());
+	}
+
+
 	material->GetPixelShader()->SetFloat4("colorTint", material->GetColorTint());
 	material->GetPixelShader()->SetFloat("totalTime", totalTime);
 	material->GetPixelShader()->SetFloat3("cameraPos", camera->GetTransform()->GetPosition());
-	material->GetPixelShader()->SetFloat("roughness", material->GetRoughness());
 
 	//copy data to gpu
 	material->GetPixelShader()->CopyAllBufferData();
