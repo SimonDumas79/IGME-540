@@ -28,8 +28,10 @@ Texture2D Albedo : register(t0);
 Texture2D NormalMap : register(t1);
 Texture2D RoughnessMap : register(t2);
 Texture2D MetalnessMap : register(t3);
+Texture2D ShadowMap : register(t4);
 
 SamplerState BasicSampler : register(s0);
+SamplerComparisonState ShadowSampler : register(s1);
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -47,7 +49,20 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
    
-
+    // Perform the perspective divide (divide by W) ourselves
+    input.shadowMapPos /= input.shadowMapPos.w;
+    // Convert the normalized device coordinates to UVs for sampling
+    float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
+    shadowUV.y = 1 - shadowUV.y; // Flip the Y
+    // Grab the distances we need: light-to-pixel and closest-surface
+    float distToLight = input.shadowMapPos.z;
+    // Get a ratio of comparison results using SampleCmpLevelZero()
+    float shadowAmount = ShadowMap.SampleCmpLevelZero(
+        ShadowSampler,
+        shadowUV,
+        distToLight).r;
+    
+    
     
     float3 unpackedNormal = NormalMap.Sample(BasicSampler, input.uv).xyz * 2 - 1;
     unpackedNormal = normalize(unpackedNormal);
@@ -92,6 +107,11 @@ float4 main(VertexToPixelWithNormalMap input) : SV_TARGET
             specComponent *= any(diffuse);
             
             float3 total = (balancedDiffuse * surfaceColor + specComponent) * lights[i].intensity * lights[i].color;
+            
+            if (i == 0)
+            {
+                total *= shadowAmount;
+            }
             
             color += total;
         }

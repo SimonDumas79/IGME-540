@@ -34,7 +34,6 @@ public:
 	DirectX::XMFLOAT3 GetRightVector();
 	DirectX::XMFLOAT4X4 GetWorldMatrix();
 	DirectX::XMFLOAT4X4 GetWorldInverseTransposeMatrix();
-
 	//setters
 	void SetPosition(float x, float y, float z);
 	void SetPosition(DirectX::XMFLOAT3 position);

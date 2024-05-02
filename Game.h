@@ -74,6 +74,10 @@ private:
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;
 
+	//shadow map shaders
+	std::shared_ptr<SimpleVertexShader> shadowVS;
+
+
 	std::shared_ptr<SimplePixelShader> PBRps;
 
 	//textured pixel shader
@@ -92,6 +96,14 @@ private:
 	DirectX::XMFLOAT3 ambientColor;
 
 	std::vector<Light> lights;
+	DirectX::XMMATRIX lightViewMatrix;
+	DirectX::XMMATRIX lightProjectionMatrix;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadowDSV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadowSRV;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizer;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
+	int shadowMapResolution;
+	
 
 	//used for textures without a specular map
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fullySpecularSRV;
@@ -159,6 +171,32 @@ private:
 
 
 	std::shared_ptr<Sky> sky;
+
+	//Post Processing 
+	// Resources that are shared among all post processes
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> ppSampler;
+	std::shared_ptr<SimpleVertexShader> ppVS;
+	// Resources that are tied to a particular post process
+	
+	//Blur Post Processing resources
+	std::shared_ptr<SimplePixelShader> ppBlurPS;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ppBlurRTV; // For rendering
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ppBlurSRV; // For sampling
+
+	//Pixelation Post Processing resources
+	std::shared_ptr<SimplePixelShader> ppPixelatePS;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ppPixelateRTV; // For rendering
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ppPixelateSRV; // For sampling
+
+	//Posterization Post Processing resources
+	std::shared_ptr<SimplePixelShader> ppPosterizePS;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ppPosterizeRTV; // For rendering
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ppPosterizeSRV; // For sampling
+
+	int blurRadius;
+	int pixelSize;
+	bool posterize;
+	float posterizeLevel;
 
 };
 

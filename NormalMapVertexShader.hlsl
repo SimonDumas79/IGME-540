@@ -1,5 +1,7 @@
 #include "ShaderIncludes.hlsli"
 
+#define MAX_LIGHTS 128
+
 //change every entity
 cbuffer DataPerEntity : register(b0)
 {
@@ -12,6 +14,8 @@ cbuffer DataPerFrame : register(b1)
 {
     matrix viewMatrix;
     matrix projectionMatrix;
+    matrix lightViewMatrix;
+    matrix lightProjMatrix;
 }
 
 // --------------------------------------------------------
@@ -43,7 +47,8 @@ VertexToPixelWithNormalMap main(VertexShaderInput input)
     output.tangent = mul((float3x3) worldMatrix, input.tangent);
 	output.worldPosition = mul(worldMatrix, float4(input.localPosition, 1)).xyz;
 	
-	
+    matrix shadowWVP = mul(lightProjMatrix, mul(lightViewMatrix, worldMatrix));
+    output.shadowMapPos = mul(shadowWVP, float4(input.localPosition, 1.0f));
 	
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)

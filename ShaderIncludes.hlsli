@@ -35,6 +35,7 @@ struct VertexToPixel
     float3 worldPosition : POSITION; // XYZ position
     float3 normal : NORMAL;
     float2 uv : TEXCOORD;
+    float4 shadowMapPos : SHADOW_POSITION;
 };
 
 struct VertexToPixelWithNormalMap
@@ -49,6 +50,7 @@ struct VertexToPixelWithNormalMap
     float3 normal : NORMAL;
     float2 uv : TEXCOORD;
     float3 tangent : TANGENT;
+    float4 shadowMapPos : SHADOW_POSITION;
 };
 
 struct Light

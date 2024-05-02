@@ -1,1 +1,1 @@
-I implemented specular maps as my extra texture related feature.
+I implemented pixelation and posterization 
